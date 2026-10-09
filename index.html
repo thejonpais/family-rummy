@@ -1,0 +1,1962 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Family Rummy">
+<meta name="theme-color" content="#1f7a4d">
+<meta name="format-detection" content="telephone=no">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<title>Family Rummy</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect x='14' y='6' width='72' height='88' rx='14' fill='%23fff8e8' stroke='%23c9b48a' stroke-width='4'/%3E%3Ctext x='50' y='70' font-size='56' font-weight='900' text-anchor='middle' fill='%23d62828' font-family='Arial'%3E7%3C/text%3E%3C/svg%3E">
+<style>
+:root {
+  --tw: clamp(28px, min(4.4vw, 5.4vh), 50px);
+  --rw: clamp(34px, min(6.2vw, 6.9vh), 64px);
+  --bg1: #fff7ea; --bg2: #ffe7c7;
+  --ink: #3b2a1a; --muted: #8a6d52;
+  --accent: #e8743b; --accent2: #3b8ee8; --good: #2f9e55; --bad: #e23b3b;
+  --felt1: #2f9a63; --felt2: #1d6b44;
+  --card: #fff; --shadow: 0 6px 20px rgba(90, 55, 20, .15);
+  --c0: #d62828; --c1: #1f5fd6; --c2: #e07800; --c3: #1d1d1d;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: ui-rounded, "SF Pro Rounded", "Nunito", "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+  color: var(--ink);
+  background: radial-gradient(circle at 15% 10%, #fffaf2 0, transparent 40%), linear-gradient(160deg, var(--bg1), var(--bg2));
+  min-height: 100vh; min-height: 100dvh;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: 100%;
+}
+[hidden] { display: none !important; }
+button { font: inherit; color: inherit; }
+.c0 { color: var(--c0); } .c1 { color: var(--c1); } .c2 { color: var(--c2); } .c3 { color: var(--c3); }
+
+/* ---------- buttons / cards (shared look with Family Chess) ---------- */
+.btn { border: 0; border-radius: 14px; padding: 11px 16px; font-weight: 700; font-size: 16px; background: #fff; color: var(--ink);
+  box-shadow: 0 2px 0 rgba(90,55,20,.18), 0 3px 10px rgba(90,55,20,.10); cursor: pointer; touch-action: manipulation; transition: transform .08s, opacity .2s, background .2s; white-space: nowrap; }
+.btn:active { transform: translateY(1px) scale(.98); }
+.btn.primary { background: var(--good); color: #fff; }
+.btn.blue { background: var(--accent2); color: #fff; }
+.btn.big { font-size: 20px; padding: 15px 20px; }
+.btn.small { font-size: 14px; padding: 7px 11px; border-radius: 11px; }
+.btn.wide { width: 100%; }
+.btn.icon { padding: 8px 11px; font-size: 20px; }
+.btn:disabled { opacity: .38; cursor: default; transform: none; }
+.card { background: var(--card); border-radius: 18px; box-shadow: var(--shadow); padding: 16px 18px; }
+.label { font-weight: 800; font-size: 14px; color: var(--muted); text-transform: uppercase; letter-spacing: .6px; margin: 14px 0 6px; }
+.seg { display: flex; background: #f4ebdd; border-radius: 14px; padding: 4px; gap: 4px; }
+.seg button { flex: 1; border: 0; background: transparent; border-radius: 11px; padding: 11px 6px; font-weight: 700; font-size: 16px; cursor: pointer; touch-action: manipulation; }
+.seg button.on { background: #fff; box-shadow: 0 2px 6px rgba(90,55,20,.18); color: var(--accent); }
+.seg.small button { padding: 8px 6px; font-size: 15px; }
+.txt { width: 100%; font: inherit; font-size: 18px; padding: 11px 13px; border: 2px solid #ecdcc4; border-radius: 12px; background: #fffdf8; color: var(--ink); }
+.txt:focus { outline: none; border-color: var(--accent); }
+.row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+.row.center { justify-content: center; }
+.note { color: var(--muted); font-size: 14px; margin-top: 8px; line-height: 1.35; }
+.note.err { color: var(--bad); font-weight: 700; }
+
+/* ---------- setup screen ---------- */
+#setup { min-height: 100vh; min-height: 100dvh; padding-bottom: 24px; }
+.hero { text-align: center; padding: 22px 12px 6px; }
+.hero h1 { margin: 0; font-size: clamp(28px, 5vw, 42px); display: flex; align-items: center; justify-content: center; gap: 12px; }
+.hero p { margin: 6px 0 0; color: var(--muted); font-size: 16px; }
+.logo-tiles { display: inline-flex; gap: 3px; }
+.logo-tiles i { font-style: normal; width: 30px; height: 40px; border-radius: 6px; background: linear-gradient(#fffdf6, #f1e6cf); box-shadow: 0 2px 0 #cdbf9f, 0 3px 6px rgba(0,0,0,.2); font-size: 24px; display: flex; align-items: center; justify-content: center; font-weight: 900; }
+.setup-wrap { max-width: 560px; margin: 0 auto; padding: 10px 14px; display: flex; flex-direction: column; gap: 14px; }
+#btnStart { margin-top: 18px; }
+.names { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+.joinrow, .linkrow { display: flex; gap: 8px; }
+.joinrow input { text-transform: uppercase; letter-spacing: 4px; font-weight: 800; text-align: center; }
+.linkrow input { flex: 1; min-width: 0; font-size: 13px; padding: 8px; border-radius: 10px; border: 2px solid #ecdcc4; background: #fffdf8; color: var(--ink); }
+.codebox { margin: 10px 0; font-size: 18px; text-align: center; }
+.codebox b { font-size: 34px; letter-spacing: 6px; color: var(--accent); display: block; }
+.online-status { font-weight: 800; font-size: 17px; text-align: center; }
+.lobby { margin: 0; padding-left: 28px; font-size: 18px; line-height: 1.8; }
+.lobby button { margin-left: 8px; }
+#onStart { margin-top: 12px; }
+#onLeave { margin-top: 8px; }
+footer { text-align: center; color: var(--muted); font-size: 13px; padding: 20px 10px; }
+
+/* ---------- game screen ---------- */
+#game { height: 100vh; height: 100dvh; display: flex; flex-direction: column; overflow: hidden;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) 0 env(safe-area-inset-left); }
+.topbar { display: flex; align-items: center; gap: 8px; padding: 8px 10px; }
+.players { flex: 1; display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; }
+.players::-webkit-scrollbar { display: none; }
+.pchip { display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,.75); border-radius: 14px; padding: 5px 10px; border: 2px solid transparent; white-space: nowrap; box-shadow: 0 2px 6px rgba(90,55,20,.08); }
+.pchip.turn { border-color: var(--accent); background: #fff; }
+.pchip.turn .av { animation: bob 1.1s ease-in-out infinite; }
+.pchip .av { font-size: 22px; }
+.pchip .nm { font-weight: 800; font-size: 15px; max-width: 9em; overflow: hidden; text-overflow: ellipsis; }
+.pchip .ct { font-size: 13px; color: var(--muted); font-weight: 700; }
+.pchip .ct b { color: var(--ink); }
+.pchip .off { color: var(--bad); font-size: 12px; font-weight: 800; }
+.pool { font-weight: 800; background: rgba(255,255,255,.75); padding: 6px 10px; border-radius: 12px; white-space: nowrap; }
+.tablewrap { flex: 1; min-height: 0; margin: 0 8px; border-radius: 18px; position: relative;
+  background: radial-gradient(circle at 30% 20%, var(--felt1), var(--felt2)); box-shadow: inset 0 2px 12px rgba(0,0,0,.35), 0 2px 0 rgba(255,255,255,.6); }
+#table { position: absolute; inset: 0; overflow: auto; padding: 12px; display: flex; flex-wrap: wrap; align-content: flex-start; gap: 12px 14px; -webkit-overflow-scrolling: touch; }
+.set { display: inline-flex; flex-wrap: wrap; gap: 3px; padding: 7px 8px 20px; border-radius: 12px; background: rgba(255,255,255,.10); border: 2px solid rgba(255,255,255,.18); position: relative; max-width: 100%; cursor: pointer; transition: border-color .2s, background .2s; }
+.set.ok.mine { border-color: rgba(170,255,190,.85); }
+.set.bad { border-color: #ff5a5a; background: rgba(255,70,70,.22); animation: wiggle .4s ease-in-out 1; }
+.set.short { border-color: #ffc94a; border-style: dashed; background: rgba(255,210,80,.15); }
+.set .tag { position: absolute; left: 8px; right: 8px; bottom: 2px; font-size: 11.5px; font-weight: 700; color: rgba(255,255,255,.85); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; pointer-events: none; }
+.set.bad .tag { color: #fff; }
+.set.short .tag { color: #ffe9a8; }
+.set.target, #newSet.target { border-color: #fff; background: rgba(255,255,255,.28); }
+.slot { width: calc(var(--tw) * .8); height: calc(var(--tw) * 1.36); border: 2px dashed rgba(255,255,255,.7); border-radius: 8px; color: #fff; font-size: 22px; font-weight: 900; display: none; align-items: center; justify-content: center; }
+.selecting .set .slot { display: flex; }
+#newSet { min-width: calc(var(--tw) * 3.4); height: calc(var(--tw) * 1.36 + 31px); border: 2px dashed rgba(255,255,255,.55); border-radius: 12px; color: rgba(255,255,255,.85); font-weight: 700; font-size: 14px; display: flex; align-items: center; justify-content: center; text-align: center; padding: 6px 10px; cursor: pointer; }
+.selecting #newSet { border-color: #fff; color: #fff; background: rgba(255,255,255,.12); }
+.empty-table { color: rgba(255,255,255,.8); font-weight: 700; font-size: 17px; padding: 10px; width: 100%; text-align: center; }
+
+.bar { display: flex; align-items: center; gap: 10px; padding: 8px 10px; flex-wrap: wrap; }
+.msg { flex: 1; min-width: 220px; }
+#status { font-weight: 800; font-size: 18px; }
+#hintline { font-size: 15px; color: var(--muted); margin-top: 2px; min-height: 1.2em; }
+#hintline.warn { color: var(--bad); font-weight: 700; }
+#hintline.good { color: var(--good); font-weight: 700; }
+.controls { display: flex; gap: 7px; flex-wrap: wrap; justify-content: flex-end; }
+.controls .btn { padding: 11px 13px; }
+#btnDone:not(:disabled) { animation: glow 1.6s ease-in-out infinite; }
+.timer { display: inline-block; margin-left: 8px; padding: 1px 8px; border-radius: 10px; background: #fff; font-size: 15px; }
+.timer.low { background: var(--bad); color: #fff; }
+
+.rackwrap { background: linear-gradient(#b07a45, #8a5a2e); padding: 6px 10px calc(10px + env(safe-area-inset-bottom)); box-shadow: 0 -3px 10px rgba(90,55,20,.25); }
+.rackbar { display: flex; align-items: center; gap: 6px; color: #fff7e6; font-weight: 800; font-size: 14px; margin-bottom: 6px; flex-wrap: wrap; }
+.rackbar .spacer { flex: 1; }
+#rack { display: flex; flex-wrap: wrap; gap: 6px; min-height: calc(var(--rw) * 1.36 + 8px); max-height: calc(var(--rw) * 2.72 + 22px); overflow-y: auto; padding: 4px 2px; align-content: flex-start; }
+#rack.target { outline: 3px dashed #fff3; outline-offset: 2px; border-radius: 10px; }
+#rack .hidden-rack { color: #fff7e6; font-weight: 700; padding: 10px; }
+
+/* ---------- tiles ---------- */
+.tile { --s: var(--tw); width: var(--s); height: calc(var(--s) * 1.36); border-radius: calc(var(--s) * .16); flex: none;
+  background: linear-gradient(#fffdf6, #f3e9d3); box-shadow: 0 2px 0 #cdbf9f, 0 3px 6px rgba(0,0,0,.28);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative;
+  font-weight: 900; line-height: 1; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; touch-action: none; cursor: grab;
+  transition: transform .12s, box-shadow .12s, opacity .12s; }
+#rack .tile { --s: var(--rw); }
+.tile .n { font-size: calc(var(--s) * .56); letter-spacing: -1px; }
+.tile .s { font-size: calc(var(--s) * .22); margin-top: calc(var(--s) * .06); opacity: .9; }
+.tile.jk .n { font-size: calc(var(--s) * .62); background: linear-gradient(135deg, var(--c0), var(--c2) 40%, var(--c1) 70%, var(--c3)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.tile.jk .s { color: var(--muted); font-size: calc(var(--s) * .2); font-weight: 800; }
+.tile .rep { position: absolute; top: -7px; right: -7px; min-width: 20px; height: 20px; padding: 0 4px; border-radius: 10px; background: #fff; border: 2px solid currentColor; font-size: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 3px rgba(0,0,0,.3); }
+.tile.sel { transform: translateY(-7px); box-shadow: 0 0 0 3px #ffcf33, 0 8px 14px rgba(0,0,0,.3); }
+.tile.mine::after { content: ""; position: absolute; bottom: 3px; width: 6px; height: 6px; border-radius: 50%; background: var(--good); }
+.tile.fresh { animation: fresh 1.4s ease-in-out 3; box-shadow: 0 0 0 3px #7ff0ff, 0 3px 6px rgba(0,0,0,.28); }
+.tile.hint { box-shadow: 0 0 0 3px #3b8ee8, 0 0 14px #3b8ee8; animation: bob 1s ease-in-out infinite; }
+.tile.lifted { opacity: .25; }
+.tile.locked { cursor: default; }
+.ghost { position: fixed; left: 0; top: 0; z-index: 50; pointer-events: none; display: flex; gap: 3px; filter: drop-shadow(0 10px 14px rgba(0,0,0,.35)); }
+.ghost .tile { transform: rotate(-3deg) scale(1.08); }
+.demo { display: flex; gap: 4px; margin: 6px 0 8px; }
+i.t { font-style: normal; display: inline-flex; width: 34px; height: 46px; border-radius: 6px; background: linear-gradient(#fffdf6, #f1e6cf); box-shadow: 0 2px 0 #cdbf9f, 0 2px 5px rgba(0,0,0,.2); align-items: center; justify-content: center; font-weight: 900; font-size: 22px; vertical-align: middle; }
+i.t.jk { color: var(--c0); }
+
+/* ---------- overlays ---------- */
+.overlay { position: fixed; inset: 0; z-index: 40; background: rgba(40, 25, 10, .55); display: flex; align-items: center; justify-content: center; padding: 16px; -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); }
+#cover { background: linear-gradient(160deg, #2f9a63, #17553a); }
+.dialog { background: #fff; border-radius: 22px; padding: 22px; max-width: 520px; width: 100%; text-align: center; box-shadow: 0 12px 40px rgba(0,0,0,.3); max-height: 92vh; overflow: auto; }
+.dialog h2 { margin: 6px 0 8px; font-size: 26px; }
+.dialog .big { font-size: 54px; }
+.dialog p { font-size: 17px; color: var(--muted); }
+.howto { text-align: left; }
+.howto ol { padding-left: 22px; font-size: 17px; line-height: 1.45; }
+.howto li { margin-bottom: 8px; }
+.tips { font-size: 15px !important; }
+.scores { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 16px; }
+.scores th, .scores td { padding: 7px 6px; border-bottom: 1px solid #f0e4d2; text-align: center; }
+.scores td:first-child, .scores th:first-child { text-align: left; }
+.scores tr.win td { font-weight: 800; color: var(--good); }
+.toast { position: fixed; left: 50%; top: 70px; transform: translateX(-50%); z-index: 60; background: rgba(40,25,10,.88); color: #fff; padding: 11px 18px; border-radius: 14px; font-weight: 700; font-size: 16px; max-width: 90vw; text-align: center; box-shadow: 0 6px 20px rgba(0,0,0,.3); }
+
+@keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+@keyframes wiggle { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+@keyframes glow { 0%, 100% { box-shadow: 0 2px 0 rgba(0,0,0,.18), 0 0 0 0 rgba(47,158,85,.6); } 50% { box-shadow: 0 2px 0 rgba(0,0,0,.18), 0 0 0 7px rgba(47,158,85,0); } }
+@keyframes fresh { 0%, 100% { box-shadow: 0 0 0 3px #7ff0ff, 0 3px 6px rgba(0,0,0,.28); } 50% { box-shadow: 0 0 0 5px #fff, 0 3px 10px rgba(0,0,0,.28); } }
+
+@media (max-width: 640px) {
+  .controls .btn { padding: 9px 10px; font-size: 15px; }
+  #status { font-size: 16px; }
+  .pchip .ct { display: none; }
+  .pchip.turn .ct, .pchip.me .ct { display: inline; }
+}
+@media (orientation: landscape) and (max-height: 820px) {
+  .bar { padding: 4px 10px; }
+  .topbar { padding: 4px 10px; }
+  #rack { max-height: calc(var(--rw) * 1.36 * 2 + 14px); }
+}
+
+/* ---------- "Your turn!" banner ---------- */
+.turn-banner { position: fixed; left: 50%; top: 38%; transform: translate(-50%, -50%); z-index: 70; pointer-events: none;
+  background: linear-gradient(#ffd34d, #f5a623); color: #3a2400; border-radius: 26px; padding: 22px 40px; text-align: center;
+  box-shadow: 0 14px 40px rgba(0,0,0,.35), 0 0 0 6px rgba(255,255,255,.85); animation: turnpop .45s cubic-bezier(.2,1.6,.4,1); }
+.turn-banner b { display: block; font-size: clamp(34px, 7vw, 60px); font-weight: 900; letter-spacing: .5px; }
+.turn-banner span { display: block; font-size: 18px; font-weight: 700; margin-top: 4px; }
+.turn-banner span:empty { display: none; }
+.turn-banner.hide { opacity: 0; transition: opacity .4s; }
+@keyframes turnpop { from { transform: translate(-50%, -50%) scale(.3); opacity: 0; } to { transform: translate(-50%, -50%) scale(1); opacity: 1; } }
+#btnSound.off { opacity: .6; }
+
+</style>
+</head>
+<body>
+<!-- ============ SETUP ============ -->
+<div id="setup" class="screen">
+  <header class="hero">
+    <h1><span class="logo-tiles"><i class="c0">1</i><i class="c1">2</i><i class="c2">3</i></span> Family Rummy</h1>
+    <p>Make runs and groups with number tiles. First to play every tile wins!</p>
+  </header>
+  <div class="setup-wrap">
+    <div class="card" id="continueCard" hidden>
+      <button class="btn primary big wide" id="btnContinue">▶ Continue your game</button>
+      <div class="note" id="continueNote"></div>
+    </div>
+    <div class="card">
+      <div class="label">Who's playing?</div>
+      <div class="seg" id="segMode">
+        <button data-v="computer">🤖 vs Computer</button>
+        <button data-v="pass">👨‍👩‍👧 Pass &amp; Play</button>
+        <button data-v="online">🌐 Online</button>
+      </div>
+
+      <div id="nameBlock">
+        <div class="label">Your name</div>
+        <input class="txt" id="myName" maxlength="14" autocomplete="off" placeholder="Your name">
+      </div>
+
+      <div id="optComputer">
+        <div class="label">How many computer players?</div>
+        <div class="seg" id="segAiCount"><button data-v="1">1</button><button data-v="2">2</button><button data-v="3">3</button></div>
+        <div class="label">Computer level</div>
+        <div class="seg" id="segLevel"><button data-v="easy">🐣 Easy</button><button data-v="normal">😎 Normal</button></div>
+      </div>
+
+      <div id="optPass" hidden>
+        <div class="label">How many players?</div>
+        <div class="seg" id="segPassCount"><button data-v="2">2</button><button data-v="3">3</button><button data-v="4">4</button></div>
+        <div class="names" id="passNames"></div>
+        <div class="note">Everyone shares this device. Tiles are hidden while you pass it to the next player.</div>
+      </div>
+
+      <div id="optOnline" hidden>
+        <div id="onSetup">
+          <button class="btn primary wide" id="onCreate">🎲 Create an online game</button>
+          <div class="label">…or join a friend's game</div>
+          <div class="joinrow"><input class="txt" id="onCode" placeholder="CODE" maxlength="6" autocomplete="off" autocapitalize="characters" spellcheck="false"><button class="btn blue" id="onJoin">Join</button></div>
+        </div>
+        <div id="onLobby" hidden>
+          <div class="online-status" id="onStatus"></div>
+          <div class="codebox">Game code <b id="onCodeShow"></b></div>
+          <div class="linkrow" id="onLinkRow"><input readonly id="onLink"><button class="btn" id="onCopy">Copy</button><button class="btn" id="onShare">Share</button></div>
+          <div class="label">Players</div>
+          <ol class="lobby" id="lobbyList"></ol>
+          <div class="row" id="lobbyHostBtns">
+            <button class="btn" id="addAiEasy">➕ 🐣 Easy computer</button>
+            <button class="btn" id="addAiNormal">➕ 😎 Normal computer</button>
+          </div>
+          <div class="note" id="onNote"></div>
+          <button class="btn small" id="btnNotify" hidden>🔔 Also notify me when it’s my turn (app in background)</button>
+          <div class="note" id="notifyNote" hidden></div>
+          <button class="btn primary big wide" id="onStart">▶ Start game</button>
+          <button class="btn wide" id="onLeave">Leave online game</button>
+        </div>
+        <div class="note err" id="onError" hidden></div>
+      </div>
+
+      <div id="timerBlock">
+        <div class="label">Turn timer</div>
+        <div class="seg small" id="segTimer"><button data-v="0">Off</button><button data-v="60">1 min</button><button data-v="120">2 min</button></div>
+      </div>
+      <button class="btn primary big wide" id="btnStart">▶ Start game</button>
+    </div>
+    <div class="row center"><button class="btn" id="btnHowto1">📖 How to play</button></div>
+  </div>
+  <footer>Works offline · Your game is saved on this device</footer>
+</div>
+
+<!-- ============ GAME ============ -->
+<div id="game" class="screen" hidden>
+  <div class="topbar">
+    <button class="btn icon" id="btnMenu" aria-label="Menu">🏠</button>
+    <div class="players" id="players"></div>
+    <div class="pool" id="pool" title="Tiles left to draw">🎴 <b id="poolN">0</b></div>
+    <button class="btn icon" id="btnSound" aria-label="Turn sound on or off" title="Your-turn sound">🔔</button>
+    <button class="btn icon" id="btnHowto2" aria-label="How to play">📖</button>
+  </div>
+  <div class="tablewrap">
+    <div id="table" aria-label="Table"></div>
+  </div>
+  <div class="bar">
+    <div class="msg"><div id="status"></div><div id="hintline"></div></div>
+    <div class="controls" id="controls">
+      <button class="btn" id="btnUndo">↩️ Undo</button>
+      <button class="btn" id="btnReset">⟲ Reset</button>
+      <button class="btn blue" id="btnHint">💡 Hint</button>
+      <button class="btn" id="btnDraw">🎴 Draw</button>
+      <button class="btn primary" id="btnDone">✅ Done</button>
+      <button class="btn" id="btnSkip" hidden>⏭ Skip turn</button>
+    </div>
+  </div>
+  <div class="rackwrap">
+    <div class="rackbar">
+      <span id="rackLabel">Your tiles</span>
+      <span class="spacer"></span>
+      <button class="btn small" id="btnNewSet" hidden>➕ New set</button>
+      <button class="btn small" id="sortColor">🎨 Sort by color</button>
+      <button class="btn small" id="sortNum">🔢 Sort by number</button>
+    </div>
+    <div id="rack" aria-label="Your tiles"></div>
+  </div>
+</div>
+
+<!-- ============ OVERLAYS ============ -->
+<div class="overlay" id="cover" hidden>
+  <div class="dialog">
+    <div class="big">👉</div>
+    <h2 id="coverTitle">Pass to …</h2>
+    <p id="coverText"></p>
+    <button class="btn primary big wide" id="coverGo">Show my tiles</button>
+  </div>
+</div>
+<div class="overlay" id="overOverlay" hidden>
+  <div class="dialog">
+    <div class="big" id="overEmoji">🎉</div>
+    <h2 id="overTitle"></h2>
+    <p id="overText"></p>
+    <table class="scores" id="overScores"></table>
+    <div class="row center">
+      <button class="btn primary" id="overNext">▶ Next round</button>
+      <button class="btn" id="overLook">👀 Look at table</button>
+      <button class="btn" id="overMenu">🏠 Menu</button>
+    </div>
+  </div>
+</div>
+<div class="overlay" id="howto" hidden>
+  <div class="dialog howto">
+    <h2>📖 How to play</h2>
+    <ol>
+      <li><b>Goal:</b> be the first to play <b>all</b> your tiles.</li>
+      <li><b>Run</b> = 3 or more of the <b>same color</b> in a row.
+        <div class="demo"><i class="t c0">4</i><i class="t c0">5</i><i class="t c0">6</i></div>
+        <b>Group</b> = 3 or 4 of the <b>same number</b>, all <b>different colors</b>.
+        <div class="demo"><i class="t c1">7</i><i class="t c2">7</i><i class="t c3">7</i></div></li>
+      <li><b>First play:</b> your sets must add up to <b>30 points</b> or more, using only tiles from your rack.</li>
+      <li>After that you can add to sets on the table — and even move table tiles around — as long as every set is right when you tap <b>✅ Done</b>.</li>
+      <li>Can't play? Tap <b>🎴 Draw</b> to take a tile. That ends your turn.</li>
+      <li>The <b>joker</b> <i class="t jk">☺</i> can be any tile. To take a joker from the table, put the real tile it stands for in its place — then use the joker that same turn.</li>
+    </ol>
+    <p class="tips">👆 Drag tiles — or tap tiles, then tap where they go. Drop on the green table to start a new set. Use <b>↩️ Undo</b> or <b>⟲ Reset</b> if you get mixed up. <b>💡 Hint</b> lights up tiles you could play.</p>
+    <p class="tips">🏆 Scoring: when someone goes out, everyone else loses the points left in their rack (joker = 30) and the winner gets them.</p>
+    <button class="btn primary wide" id="howtoClose">Got it!</button>
+  </div>
+</div>
+<div class="toast" id="toast" hidden></div>
+<div class="turn-banner" id="turnBanner" hidden aria-live="assertive"><b>⭐ Your turn!</b><span id="turnBannerSub"></span></div>
+
+<script>
+// Family Rummy rule engine + computer players. Pure functions on plain JSON state.
+// Works in the browser (global RummyEngine) and in Node (module.exports).
+(function (root) {
+  'use strict';
+  var COLORS = ['red', 'blue', 'orange', 'black'];
+  var COLOR_NAMES = ['Red', 'Blue', 'Orange', 'Black'];
+  var NUM_TILES = 106, JOKER_A = 104, JOKER_B = 105;
+  var stats = { aiFallbacks: 0, aiPlans: 0 };
+
+  // ---------- tiles ----------
+  // id 0..103: copy*52 + color*13 + (num-1); 104,105 = jokers
+  function isJoker(id) { return id >= 104; }
+  function colorOf(id) { return isJoker(id) ? -1 : Math.floor((id % 52) / 13); }
+  function numOf(id) { return isJoker(id) ? 0 : (id % 13) + 1; }
+  function vkey(id) { return id % 52; }                       // value key (color+num), same for both copies
+  function keyOf(c, n) { return c * 13 + (n - 1); }
+  function keyColor(k) { return Math.floor(k / 13); }
+  function keyNum(k) { return (k % 13) + 1; }
+  function tileName(id) { return isJoker(id) ? 'Joker' : COLOR_NAMES[colorOf(id)] + ' ' + numOf(id); }
+  function rackValue(id) { return isJoker(id) ? 30 : numOf(id); }
+  function rackTotal(rack) { var s = 0; for (var i = 0; i < rack.length; i++) s += rackValue(rack[i]); return s; }
+
+  function mulberry32(a) {
+    return function () { a |= 0; a = a + 0x6D2B79F5 | 0; var t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+  }
+  function shuffle(arr, rng) {
+    rng = rng || Math.random;
+    for (var i = arr.length - 1; i > 0; i--) { var j = Math.floor(rng() * (i + 1)), t = arr[i]; arr[i] = arr[j]; arr[j] = t; }
+    return arr;
+  }
+  function newDeck(rng) { var d = []; for (var i = 0; i < NUM_TILES; i++) d.push(i); return shuffle(d, rng); }
+
+  // ---------- set analysis ----------
+  // analyzeSet(ids, prefer) -> { ok, kind:'group'|'run', order:[ids], points, jok:{id:[valueKeys it may stand for]}, reason }
+  // prefer: {jokerId: [valueKeys]} — when a set can be read more than one way, keep jokers meaning what they meant.
+  function fail(reason, code) { return { ok: false, reason: reason, code: code }; }
+  function prefScore(cand, prefer) {
+    if (!prefer) return 0;
+    var s = 0;
+    for (var j in cand.jok) {
+      var p = prefer[j]; if (!p) continue;
+      for (var i = 0; i < cand.jok[j].length; i++) if (p.indexOf(cand.jok[j][i]) >= 0) { s++; break; }
+    }
+    return s;
+  }
+  function asGroup(real, jok) {
+    var n = numOf(real[0]), seen = {}, i;
+    for (i = 0; i < real.length; i++) {
+      if (numOf(real[i]) !== n) return null;
+      if (seen[colorOf(real[i])]) return fail('Same color twice — a group needs different colors', 'dupcolor');
+      seen[colorOf(real[i])] = 1;
+    }
+    if (real.length + jok.length > 4) return fail('A group can have at most 4 tiles', 'big');
+    var missing = [];
+    for (var c = 0; c < 4; c++) if (!seen[c]) missing.push(keyOf(c, n));
+    var order = real.slice().sort(function (a, b) { return colorOf(a) - colorOf(b); }).concat(jok);
+    var jm = {}; jok.forEach(function (j) { jm[j] = missing.slice(); });
+    return { ok: true, kind: 'group', order: order, points: n * (real.length + jok.length), jok: jm, num: n };
+  }
+  function asRuns(ids, real, jok) {
+    var c = colorOf(real[0]), i, seen = {};
+    for (i = 0; i < real.length; i++) {
+      if (colorOf(real[i]) !== c) return null;
+      if (seen[numOf(real[i])]) return [fail('Same number twice in a run', 'dupnum')];
+      seen[numOf(real[i])] = 1;
+    }
+    var sorted = real.slice().sort(function (a, b) { return numOf(a) - numOf(b); });
+    var a = numOf(sorted[0]), b = numOf(sorted[sorted.length - 1]);
+    var gaps = (b - a + 1) - real.length;
+    if (gaps > jok.length) return [fail('Numbers in a run must be in a row (no gaps)', 'gap')];
+    var free = jok.length - gaps;
+    if (b - a + 1 + free > 13) return [fail("A run can't go past 13", 'long')];
+    var loMin = Math.max(0, free - (13 - b)), loMax = Math.min(free, a - 1);
+    var lead = 0; for (i = 0; i < ids.length && isJoker(ids[i]); i++) lead++;
+    var hint = Math.max(loMin, Math.min(loMax, lead));
+    var perms = jok.length === 2 ? [[jok[0], jok[1]], [jok[1], jok[0]]] : [jok.slice()];
+    var out = [];
+    for (var lo = loMin; lo <= loMax; lo++) {
+      for (var p = 0; p < perms.length; p++) {
+        var start = a - lo, len = b - a + 1 + free, order = [], jm = {}, jq = perms[p].slice(), pts = 0, ri = 0;
+        for (var v = start; v < start + len; v++) {
+          pts += v;
+          if (ri < sorted.length && numOf(sorted[ri]) === v) order.push(sorted[ri++]);
+          else { var j = jq.shift(); order.push(j); jm[j] = [keyOf(c, v)]; }
+        }
+        out.push({ ok: true, kind: 'run', order: order, points: pts, jok: jm, color: c, start: start, len: len, _hintDist: Math.abs(lo - hint) + p * 0.1 });
+      }
+    }
+    return out;
+  }
+  function analyzeSet(ids, prefer) {
+    if (!ids || ids.length < 3) return fail('A set needs at least 3 tiles', 'short');
+    var real = [], jok = [];
+    for (var i = 0; i < ids.length; i++) (isJoker(ids[i]) ? jok : real).push(ids[i]);
+    if (!real.length) return fail('A set needs at least 3 tiles', 'short');
+    var cands = [], bad = [];
+    var g = asGroup(real, jok);
+    if (g) (g.ok ? cands : bad).push(g);
+    var rs = asRuns(ids, real, jok);
+    if (rs) rs.forEach(function (r) { (r.ok ? cands : bad).push(r); });
+    if (!cands.length) {
+      if (bad.length) return bad[0];
+      if (real.length > 1 && ids.length > 4 && real.every(function (t) { return numOf(t) === numOf(real[0]); })) return fail('A group can have at most 4 tiles', 'big');
+      return fail('Mix of colors and numbers — use a run (same color, in a row) or a group (same number, different colors)', 'mixed');
+    }
+    var best = null, bestK = null;
+    cands.forEach(function (c) {
+      // rank: keep joker meanings > follow where the joker was dropped > more points > run
+      var k = [prefScore(c, prefer), -(c._hintDist || 0), c.points, c.kind === 'run' ? 1 : 0];
+      if (!best || cmpKey(k, bestK) > 0) { best = c; bestK = k; }
+    });
+    delete best._hintDist;
+    return best;
+  }
+  function cmpKey(a, b) { for (var i = 0; i < a.length; i++) if (a[i] !== b[i]) return a[i] - b[i]; return 0; }
+  function normalizeSet(ids, prefer) { var a = analyzeSet(ids, prefer); return a.ok ? a.order.slice() : ids.slice(); }
+
+  // Joker meanings on a table: {jokerId: [valueKeys]}
+  function jokerMeanings(table, prefer) {
+    var m = {};
+    table.forEach(function (s) { var a = analyzeSet(s, prefer); if (a.ok) for (var j in a.jok) m[j] = a.jok[j]; });
+    return m;
+  }
+
+  // ---------- turn validation ----------
+  // start/end: {table:[[ids]], rack:[ids]}. melded: has this player already made the 30-point first play?
+  function validateTurn(start, end, melded) {
+    var errors = [], i;
+    var startTable = flat(start.table), endTable = flat(end.table);
+    var inStartTable = {}, inEndTable = {}, inStartRack = {};
+    startTable.forEach(function (t) { inStartTable[t] = 1; });
+    start.rack.forEach(function (t) { inStartRack[t] = 1; });
+    var allStart = startTable.concat(start.rack).sort(num), allEnd = endTable.concat(end.rack).sort(num);
+    var same = allStart.length === allEnd.length;
+    for (i = 0; same && i < allStart.length; i++) if (allStart[i] !== allEnd[i]) same = false;
+    if (!same) return { ok: false, errors: [{ code: 'integrity', msg: 'Tiles got mixed up — tap Reset.' }], played: [], sets: [], meldPoints: 0 };
+    endTable.forEach(function (t) { inEndTable[t] = 1; });
+    var lost = startTable.filter(function (t) { return !inEndTable[t]; });
+    if (lost.length) errors.push({ code: 'tablekept', msg: 'Tiles from the table have to stay on the table.', tiles: lost });
+    var played = endTable.filter(function (t) { return !inStartTable[t]; });
+    var prefer = jokerMeanings(start.table);
+    var sets = end.table.map(function (s) { return analyzeSet(s, prefer); });
+    var badSets = [];
+    sets.forEach(function (a, k) { if (!a.ok) badSets.push(k); });
+    if (badSets.length) errors.push({ code: 'invalid', msg: badSets.length === 1 ? 'One set isn\u2019t right yet (in red).' : badSets.length + ' sets aren\u2019t right yet (in red).', sets: badSets });
+    if (!played.length) errors.push({ code: 'none', msg: 'Play at least one tile from your rack — or tap Draw.' });
+    var meldPoints = 0;
+    if (!melded) {
+      var startKeys = {};
+      start.table.forEach(function (s) { var k = s.slice().sort(num).join(','); startKeys[k] = (startKeys[k] || 0) + 1; });
+      var touched = false;
+      end.table.forEach(function (s, k) {
+        var key = s.slice().sort(num).join(',');
+        if (startKeys[key]) { startKeys[key]--; return; }
+        if (s.some(function (t) { return !inStartRack[t]; })) touched = true;
+        else if (sets[k].ok) meldPoints += sets[k].points;
+      });
+      for (var kk in startKeys) if (startKeys[kk]) touched = true;
+      if (touched) errors.push({ code: 'touch', msg: 'You can\u2019t change the table until your first play (30 points) is done.' });
+      else if (played.length && meldPoints < 30) errors.push({ code: 'meld30', msg: 'Your first play needs 30 points from your own tiles — you have ' + meldPoints + '.', points: meldPoints });
+    }
+    // jokers taken from the table must be swapped for the real tile they stood for (from the rack)
+    if (!badSets.length && !lost.length) {
+      var now = {};
+      sets.forEach(function (a) { for (var j in a.jok) now[j] = a.jok[j]; });
+      var need = [];
+      for (var j in prefer) {
+        var was = prefer[j], is = now[j] || [];
+        if (!was.some(function (v) { return is.indexOf(v) >= 0; })) need.push(was);
+      }
+      if (need.length) {
+        var supply = played.filter(function (t) { return !isJoker(t); }).map(vkey);
+        if (!matchAll(need, supply)) errors.push({ code: 'joker', msg: 'To take a joker, put the real tile it stands for from your rack in its place.' });
+      }
+    }
+    return { ok: errors.length === 0, errors: errors, played: played, sets: sets, meldPoints: meldPoints };
+  }
+  function matchAll(need, supply) {
+    if (!need.length) return true;
+    var first = need[0];
+    for (var i = 0; i < supply.length; i++) {
+      if (first.indexOf(supply[i]) >= 0) {
+        var rest = supply.slice(0, i).concat(supply.slice(i + 1));
+        if (matchAll(need.slice(1), rest)) return true;
+      }
+    }
+    return false;
+  }
+  function flat(table) { var o = []; for (var i = 0; i < table.length; i++) for (var k = 0; k < table[i].length; k++) o.push(table[i][k]); return o; }
+  function num(a, b) { return a - b; }
+  function clone(x) { return JSON.parse(JSON.stringify(x)); }
+
+  // ---------- game state ----------
+  // players: [{name, kind:'human'|'ai'|'remote', level:'easy'|'normal', cid?}]
+  function newGame(players, opts) {
+    opts = opts || {};
+    var G = { v: 1, round: 0, timer: opts.timer || 0, players: players.map(function (p) {
+      return { name: p.name, kind: p.kind, level: p.level || 'normal', cid: p.cid || null, rack: [], melded: false, score: 0, wins: 0 };
+    }) };
+    return newRound(G, opts.rng);
+  }
+  function newRound(G, rng) {
+    var deck = newDeck(rng);
+    G.round = (G.round || 0) + 1;
+    G.players.forEach(function (p) { p.rack = deck.splice(0, 14); p.melded = false; });
+    G.pool = deck; G.table = []; G.turn = 1; G.passes = 0; G.over = null; G.lastMove = null;
+    G.cur = (G.round - 1) % G.players.length;
+    return G;
+  }
+  function commitTurn(G, table, rack) {
+    if (G.over) return { ok: false, errors: [{ code: 'over', msg: 'The game is over.' }] };
+    var P = G.players[G.cur];
+    var res = validateTurn({ table: G.table, rack: P.rack }, { table: table, rack: rack }, P.melded);
+    if (!res.ok) return res;
+    var prefer = jokerMeanings(G.table);
+    G.table = table.map(function (s) { return normalizeSet(s, prefer); });
+    P.rack = rack.slice();
+    if (!P.melded) P.melded = true;
+    G.lastMove = { seat: G.cur, turn: G.turn, played: res.played.slice(), drew: false };
+    G.passes = 0;
+    if (!P.rack.length) finishRound(G, G.cur, 'out'); else advance(G);
+    return res;
+  }
+  function drawTurn(G) {
+    if (G.over) return { ok: false };
+    var P = G.players[G.cur], drew = null;
+    if (G.pool.length) { drew = G.pool.pop(); P.rack.push(drew); G.passes = 0; }
+    else G.passes++;
+    G.lastMove = { seat: G.cur, turn: G.turn, played: [], drew: drew !== null, passed: drew === null };
+    if (!G.pool.length && G.passes >= G.players.length) { finishRound(G, null, 'stuck'); return { ok: true, drew: drew }; }
+    advance(G);
+    return { ok: true, drew: drew };
+  }
+  function advance(G) { G.cur = (G.cur + 1) % G.players.length; G.turn++; }
+  function finishRound(G, winner, reason) {
+    var totals = G.players.map(function (p) { return rackTotal(p.rack); });
+    var deltas = totals.map(function () { return 0; });
+    if (winner === null) {      // pool empty, nobody can play: lowest rack wins
+      winner = 0;
+      for (var i = 1; i < totals.length; i++) {
+        if (totals[i] < totals[winner] || (totals[i] === totals[winner] && G.players[i].rack.length < G.players[winner].rack.length)) winner = i;
+      }
+      totals.forEach(function (t, k) { if (k !== winner) { deltas[k] = -(t - totals[winner]); deltas[winner] += t - totals[winner]; } });
+    } else {
+      totals.forEach(function (t, k) { if (k !== winner) { deltas[k] = -t; deltas[winner] += t; } });
+    }
+    G.players.forEach(function (p, k) { p.score += deltas[k]; });
+    G.players[winner].wins = (G.players[winner].wins || 0) + 1;
+    G.over = { winner: winner, reason: reason, totals: totals, deltas: deltas };
+  }
+  // what a given seat is allowed to see (online)
+  function viewFor(G, seat) {
+    return {
+      turn: G.turn, cur: G.cur, round: G.round, timer: G.timer, mySeat: seat,
+      players: G.players.map(function (p) { return { name: p.name, kind: p.kind, level: p.level, count: p.rack.length, melded: p.melded, score: p.score, wins: p.wins || 0 }; }),
+      table: G.table, rack: G.players[seat].rack.slice(), pool: G.pool.length, over: G.over ? Object.assign({ racks: G.players.map(function (p) { return p.rack; }) }, G.over) : null,
+      lastMove: G.lastMove
+    };
+  }
+
+  // ---------- computer players ----------
+  function availability(ids) {
+    var by = []; for (var k = 0; k < 52; k++) by.push([]);
+    var jokers = [];
+    ids.forEach(function (t) { if (isJoker(t)) jokers.push(t); else by[vkey(t)].push(t); });
+    return { by: by, jokers: jokers };
+  }
+  // all value-level sets that can be made from the available tiles
+  function candidates(av, maxJ) {
+    var list = [], J = Math.min(maxJ, av.jokers.length), n, c, s, e;
+    for (n = 1; n <= 13; n++) {
+      var cols = []; for (c = 0; c < 4; c++) if (av.by[keyOf(c, n)].length) cols.push(c);
+      for (var mask = 1; mask < (1 << cols.length); mask++) {
+        var keys = []; for (var b = 0; b < cols.length; b++) if (mask & (1 << b)) keys.push(keyOf(cols[b], n));
+        for (var jc = 0; jc <= J; jc++) { var sz = keys.length + jc; if (sz >= 3 && sz <= 4) list.push({ keys: keys, j: jc, kind: 'group', n: n }); }
+      }
+    }
+    for (c = 0; c < 4; c++) {
+      for (s = 1; s <= 11; s++) {
+        var miss = 0, present = [];
+        for (e = s; e <= 13; e++) {
+          if (av.by[keyOf(c, e)].length) present.push(keyOf(c, e)); else miss++;
+          if (miss > J) break;
+          if (e - s + 1 >= 3 && present.length) list.push({ keys: present.slice(), j: miss, kind: 'run', c: c, s: s, e: e });
+        }
+      }
+    }
+    list.forEach(function (cd) {
+      cd.size = cd.keys.length + cd.j;
+      cd.points = cd.kind === 'group' ? cd.n * cd.size : (cd.s + cd.e) * (cd.e - cd.s + 1) / 2;
+    });
+    list.sort(function (x, y) { return (y.keys.length - x.keys.length) || (x.j - y.j) || (y.points - x.points); });
+    return list;
+  }
+  function buildSet(cd, av) {
+    if (cd.kind === 'group') {
+      var g = cd.keys.map(function (k) { return av.by[k].pop(); });
+      for (var i = 0; i < cd.j; i++) g.push(av.jokers.pop());
+      return g;
+    }
+    var out = [];
+    for (var v = cd.s; v <= cd.e; v++) { var k = keyOf(cd.c, v); out.push(cd.keys.indexOf(k) >= 0 ? av.by[k].pop() : av.jokers.pop()); }
+    return out;
+  }
+  // choose disjoint sets from the rack: maximize tiles placed (jokers cost a little), meeting a points threshold
+  function bestCombo(rack, opts) {
+    var av = availability(rack);
+    var cands = candidates(av, opts.maxJ === undefined ? 2 : opts.maxJ);
+    if (!cands.length) return null;
+    var cnt = av.by.map(function (l) { return l.length; }), jLeft = av.jokers.length;
+    var totalReal = rack.length - jLeft, need = opts.need || 0, jc = opts.jokerCost === undefined ? 0.5 : opts.jokerCost;
+    var best = null, bestScore = -1, nodes = 0, maxNodes = opts.maxNodes || 40000, picks = [];
+    function dfs(startIdx, tiles, realUsed, jUsed, pts) {
+      if (++nodes > maxNodes) return;
+      if (picks.length && pts >= need) {
+        var sc = realUsed + jUsed * (1 - jc) + (tiles === rack.length ? 1000 : 0) + pts / 10000;
+        if (sc > bestScore) { bestScore = sc; best = picks.slice(); }
+      }
+      if (realUsed + (totalReal - realUsed) + jLeft + 1000 * (tiles === rack.length ? 0 : 1) < bestScore && pts >= need) return;
+      for (var i = startIdx; i < cands.length; i++) {
+        var cd = cands[i], okc = cd.j <= jLeft;
+        for (var k = 0; okc && k < cd.keys.length; k++) if (!cnt[cd.keys[k]]) okc = false;
+        if (!okc) continue;
+        for (k = 0; k < cd.keys.length; k++) cnt[cd.keys[k]]--;
+        jLeft -= cd.j; picks.push(cd);
+        dfs(i, tiles + cd.size, realUsed + cd.keys.length, jUsed + cd.j, pts + cd.points);
+        picks.pop(); jLeft += cd.j;
+        for (k = 0; k < cd.keys.length; k++) cnt[cd.keys[k]]++;
+        if (nodes > maxNodes) return;
+      }
+    }
+    dfs(0, 0, 0, 0, 0);
+    if (!best) return null;
+    return best.map(function (cd) { return buildSet(cd, av); });
+  }
+  function greedyCombo(rack, rng, maxJ) {
+    var av = availability(rack), cands = candidates(av, maxJ);
+    // shuffle within equal sizes for variety
+    cands = cands.map(function (c) { return [c, c.size + rng() * 0.5]; }).sort(function (a, b) { return b[1] - a[1]; }).map(function (x) { return x[0]; });
+    var cnt = av.by.map(function (l) { return l.length; }), jLeft = av.jokers.length, out = [];
+    cands.forEach(function (cd) {
+      var again = true;
+      while (again) {
+        again = cd.j <= jLeft;
+        for (var k = 0; again && k < cd.keys.length; k++) if (!cnt[cd.keys[k]]) again = false;
+        if (!again) break;
+        cd.keys.forEach(function (k) { cnt[k]--; }); jLeft -= cd.j; out.push(buildSet(cd, av));
+      }
+    });
+    return out;
+  }
+  function removeFrom(arr, items) { items.forEach(function (t) { var i = arr.indexOf(t); if (i >= 0) arr.splice(i, 1); }); }
+  function setPoints(sets, an) { return sets.reduce(function (s, x) { var a = an(x); return s + (a.ok ? a.points : 0); }, 0); }
+
+  function layoffs(T, R, an, allowJokers) {
+    var changed = true, any = false;
+    while (changed) {
+      changed = false;
+      for (var i = 0; i < R.length && !changed; i++) {
+        var t = R[i]; if (isJoker(t) && !allowJokers) continue;
+        for (var s = 0; s < T.length; s++) {
+          var tryS = T[s].concat([t]), a = an(tryS);
+          if (a.ok) { T[s] = a.order.slice(); R.splice(i, 1); changed = any = true; break; }
+        }
+      }
+    }
+    return any;
+  }
+  function splitInserts(T, R, an) {
+    for (var i = 0; i < R.length; i++) {
+      var t = R[i]; if (isJoker(t)) continue;
+      for (var s = 0; s < T.length; s++) {
+        var a = an(T[s]); if (!a.ok || a.kind !== 'run' || a.color !== colorOf(t)) continue;
+        var o = a.order;
+        for (var k = 1; k < o.length; k++) {
+          var L = o.slice(0, k), Rr = o.slice(k), opts = [[L.concat([t]), Rr], [L, [t].concat(Rr)]];
+          for (var q = 0; q < 2; q++) {
+            var aL = an(opts[q][0]), aR = an(opts[q][1]);
+            if (aL.ok && aR.ok) { T.splice(s, 1, aL.order.slice(), aR.order.slice()); R.splice(i, 1); return true; }
+          }
+        }
+      }
+    }
+    return false;
+  }
+  // try to free a real table tile with value key k without breaking anything; returns {tile, apply} or null
+  function tableIndex(T) {
+    var idx = {};
+    T.forEach(function (set, s) { set.forEach(function (t) { if (!isJoker(t)) (idx[vkey(t)] = idx[vkey(t)] || []).push(s); }); });
+    return idx;
+  }
+  function freeTile(T, k, an, idx) {
+    var sets = idx ? (idx[k] || []) : T.map(function (_, s) { return s; });
+    for (var q = 0; q < sets.length; q++) {
+      var s = sets[q], set = T[s];
+      for (var i = 0; i < set.length; i++) {
+        var t = set[i]; if (isJoker(t) || vkey(t) !== k) continue;
+        var rest = set.slice(0, i).concat(set.slice(i + 1));
+        var ar = an(rest);
+        if (ar.ok) return { tile: t, apply: (function (s, rest) { return function () { T[s] = rest; }; })(s, ar.order.slice()) };
+        var a = an(set);
+        if (a.ok && a.kind === 'run') {
+          var pos = a.order.indexOf(t), L = a.order.slice(0, pos), Rr = a.order.slice(pos + 1);
+          var aL = an(L), aR = an(Rr);
+          if (aL.ok && aR.ok) return { tile: t, apply: (function (s, L, Rr) { return function () { T.splice(s, 1, L, Rr); }; })(s, aL.order.slice(), aR.order.slice()) };
+        }
+      }
+    }
+    return null;
+  }
+  function neededFor(a, b) {
+    var ca = colorOf(a), cb = colorOf(b), na = numOf(a), nb = numOf(b), out = [];
+    if (na === nb && ca !== cb) { for (var c = 0; c < 4; c++) if (c !== ca && c !== cb) out.push(keyOf(c, na)); }
+    else if (ca === cb && Math.abs(na - nb) === 2) out.push(keyOf(ca, Math.min(na, nb) + 1));
+    else if (ca === cb && Math.abs(na - nb) === 1) { var lo = Math.min(na, nb), hi = lo + 1; if (lo > 1) out.push(keyOf(ca, lo - 1)); if (hi < 13) out.push(keyOf(ca, hi + 1)); }
+    return out;
+  }
+  function steals(T, R, an, deadline) {
+    var reals = R.filter(function (t) { return !isJoker(t); }), idx = tableIndex(T), seenPair = {};
+    for (var i = 0; i < reals.length; i++) for (var j = i + 1; j < reals.length; j++) {
+      var pk = vkey(reals[i]) * 64 + vkey(reals[j]);
+      if (seenPair[pk]) continue; seenPair[pk] = 1;
+      var need = neededFor(reals[i], reals[j]);
+      for (var q = 0; q < need.length; q++) {
+        if (!idx[need[q]]) continue;
+        var f = freeTile(T, need[q], an, idx);
+        if (f) {
+          var ns = an([reals[i], reals[j], f.tile]);
+          if (ns.ok) { f.apply(); T.push(ns.order.slice()); removeFrom(R, [reals[i], reals[j]]); return true; }
+        }
+      }
+    }
+    if (Date.now() > deadline) return false;
+    // a single rack tile + two freed table tiles making a group
+    var seen = {};
+    for (i = 0; i < reals.length; i++) {
+      var t = reals[i], n = numOf(t), others = [];
+      if (seen[vkey(t)]) continue; seen[vkey(t)] = 1;
+      for (var c = 0; c < 4; c++) if (c !== colorOf(t) && idx[keyOf(c, n)]) others.push(keyOf(c, n));
+      for (var x = 0; x < others.length; x++) for (var y = x + 1; y < others.length; y++) {
+        var snap = T.map(function (s) { return s.slice(); });
+        var f1 = freeTile(T, others[x], an, idx);
+        if (!f1) continue;
+        f1.apply();
+        var f2 = freeTile(T, others[y], an, null);
+        if (f2) {
+          f2.apply();
+          var g = an([t, f1.tile, f2.tile]);
+          if (g.ok) { T.push(g.order.slice()); removeFrom(R, [t]); return true; }
+        }
+        T.length = 0; snap.forEach(function (s) { T.push(s); });
+      }
+    }
+    return false;
+  }
+  function retrieveJoker(T, R, an, keep) {
+    for (var s = 0; s < T.length; s++) {
+      var a = an(T[s]); if (!a.ok) continue;
+      for (var j in a.jok) {
+        j = +j;
+        var opts = a.jok[j];
+        for (var i = 0; i < R.length; i++) {
+          var t = R[i]; if (isJoker(t) || opts.indexOf(vkey(t)) < 0) continue;
+          var ns = an(T[s].filter(function (x) { return x !== j; }).concat([t]));
+          if (!ns.ok) continue;
+          var oldKeep = keep[j]; delete keep[j];
+          var T2 = T.map(function (x) { return x.slice(); }), R2 = R.slice();
+          T2[s] = ns.order.slice(); R2.splice(i, 1); R2.push(j);
+          // the joker must go back on the table this turn
+          var melds = bestCombo(R2, { need: 0, jokerCost: 0, maxNodes: 8000 });
+          if (melds) melds.forEach(function (m) { if (m.indexOf(j) >= 0) { T2.push(an(m).order.slice()); removeFrom(R2, m); } });
+          if (R2.indexOf(j) >= 0) layoffs(T2, R2, an, true);
+          if (R2.indexOf(j) < 0) { T.length = 0; T2.forEach(function (x) { T.push(x); }); R.length = 0; R2.forEach(function (x) { R.push(x); }); return true; }
+          keep[j] = oldKeep;
+        }
+      }
+    }
+    return false;
+  }
+  function planRaw(table, rack, melded, level, rng) {
+    rng = rng || Math.random;
+    var prefer = jokerMeanings(table), keep = {}, deadline = Date.now() + 350;
+    for (var pj in prefer) keep[pj] = prefer[pj];
+    // a joker already on the table must keep meaning the same tile (unless we swap it out properly)
+    var an = function (ids) {
+      var a = analyzeSet(ids, prefer);
+      if (a.ok) for (var j in a.jok) if (keep[j] && !keep[j].some(function (v) { return a.jok[j].indexOf(v) >= 0; })) return fail('joker moved', 'jokermoved');
+      return a;
+    };
+    var T = table.map(function (s) { return s.slice(); }), R = rack.slice(), melds;
+    if (!melded) {
+      melds = level === 'easy' ? greedyCombo(R, rng, 1) : bestCombo(R, { need: 30, jokerCost: 0.3 });
+      if (!melds || !melds.length || setPoints(melds, an) < 30) return null;
+      melds.forEach(function (m) { T.push(an(m).order.slice()); removeFrom(R, m); });
+      return { table: T, rack: R };
+    }
+    if (level === 'easy') {
+      melds = greedyCombo(R, rng, 1);
+      melds.forEach(function (m) { T.push(an(m).order.slice()); removeFrom(R, m); });
+      layoffs(T, R, an, false);
+      if (rng() < 0.5) while (R.length && splitInserts(T, R, an)) { /* keep going */ }
+    } else {
+      for (var iter = 0; iter < 8; iter++) {
+        var before = R.length;
+        melds = bestCombo(R, { need: 0, jokerCost: 0.6, maxNodes: 20000 });
+        if (melds) melds.forEach(function (m) { T.push(an(m).order.slice()); removeFrom(R, m); });
+        layoffs(T, R, an, false);
+        while (R.length && Date.now() < deadline && splitInserts(T, R, an)) { /* keep going */ }
+        while (R.length && Date.now() < deadline && steals(T, R, an, deadline)) { /* keep going */ }
+        if (R.length && Date.now() < deadline) retrieveJoker(T, R, an, keep);
+        if (R.length === before || Date.now() > deadline) break;
+      }
+      if (R.length && R.every(isJoker)) layoffs(T, R, an, true);
+    }
+    if (R.length === rack.length) return null;
+    return { table: T, rack: R };
+  }
+  // Always returns a LEGAL plan or null (= draw). Anything the heuristics produce is re-checked by the rule engine.
+  function aiPlan(table, rack, melded, level, rng) {
+    stats.aiPlans++;
+    var p = null;
+    try { p = planRaw(table, rack, melded, level, rng); } catch (e) { p = null; stats.aiErrors = (stats.aiErrors || 0) + 1; }
+    if (!p) return null;
+    if (validateTurn({ table: table, rack: rack }, p, melded).ok) return p;
+    // should not happen; fall back to the simplest play (still re-checked), else draw
+    stats.aiFallbacks++;
+    try { p = planRaw(table, rack, melded, 'easy', function () { return 0.5; }); } catch (e) { p = null; }
+    if (p && validateTurn({ table: table, rack: rack }, p, melded).ok) return p;
+    return null;
+  }
+  // which rack tiles could be played right now (for the Hint button)
+  function hintTiles(table, rack, melded) {
+    var p = aiPlan(table, rack, melded, 'normal');
+    if (!p) return [];
+    var left = {}; p.rack.forEach(function (t) { left[t] = 1; });
+    return rack.filter(function (t) { return !left[t]; });
+  }
+
+  // "Your turn" ping trigger. v = a player's view. Returns a key (round:turn) when the turn has just passed
+  // to v.mySeat from someone else and that key hasn't been pinged yet; otherwise null.
+  function turnPingKey(v, lastKey) {
+    if (!v || v.over || v.cur !== v.mySeat) return null;
+    var lm = v.lastMove;
+    if (!lm || lm.seat === v.mySeat || lm.turn !== v.turn - 1) return null;
+    var key = v.round + ':' + v.turn;
+    return key === lastKey ? null : key;
+  }
+
+  var api = {
+    COLORS: COLORS, COLOR_NAMES: COLOR_NAMES, NUM_TILES: NUM_TILES,
+    isJoker: isJoker, colorOf: colorOf, numOf: numOf, vkey: vkey, keyOf: keyOf, keyColor: keyColor, keyNum: keyNum,
+    tileName: tileName, rackValue: rackValue, rackTotal: rackTotal, mulberry32: mulberry32, shuffle: shuffle, newDeck: newDeck,
+    analyzeSet: analyzeSet, normalizeSet: normalizeSet, jokerMeanings: jokerMeanings, validateTurn: validateTurn,
+    newGame: newGame, newRound: newRound, commitTurn: commitTurn, drawTurn: drawTurn, finishRound: finishRound, viewFor: viewFor,
+    _planRaw: planRaw, aiPlan: aiPlan, hintTiles: hintTiles, bestCombo: bestCombo, stats: stats, clone: clone, flat: flat, turnPingKey: turnPingKey
+  };
+  if (typeof module !== 'undefined' && module.exports) module.exports = api;
+  else root.RummyEngine = api;
+})(this);
+
+</script>
+<script>
+var FR_PWA = true;
+</script>
+<script>
+(function () {
+  'use strict';
+  var E = RummyEngine;
+  var $ = function (id) { return document.getElementById(id); };
+  var SAVE_KEY = 'familyRummy.v1';
+  var SYM = ['●', '■', '▲', '◆'];                 // color-blind helper under each number
+  var AV = ['🦊', '🐼', '🐯', '🐸'], AI_NAMES = ['Robo', 'Beepy', 'Zappy'], AI_AV = ['🤖', '👾', '🦾'];
+  var FAST = /[?&]fast\b/.test(location.search);  // tests: computer moves quickly
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function clone(x) { return JSON.parse(JSON.stringify(x)); }
+  function sameIds(a, b) { return a.length === b.length && a.slice().sort().join() === b.slice().sort().join(); }
+
+  var S = {
+    screen: 'setup', setupMode: 'computer',
+    set: { name: '', aiCount: 1, level: 'easy', passCount: 2, passNames: ['', '', '', ''], timer: 0 },
+    G: null,          // the real game (local modes and online host)
+    V: null,          // online guest: what the host lets us see
+    W: null,          // my turn in progress {turn, round, seat, start:{table,rack}, table, rack, undo:[]}
+    sel: [], hint: [], live: null, pending: false,
+    rackPos: {}, revealed: -1, lastHuman: null, seenMove: null, overSeen: null, fresh: {}, deadline: 0, coverNote: '', pinged: null
+  };
+  var O = { role: null, code: '', cid: '', peer: null, conn: null, conns: [], connected: false, everConnected: false, state: 'idle', msg: '',
+    lastSeen: 0, lastTry: 0, retries: 0, timer: null, lobby: [], you: 0, started: false, online: [] };
+
+  // ---------- small helpers ----------
+  var toastTimer = null;
+  function toast(msg, ms) {
+    var t = $('toast'); t.textContent = msg; t.hidden = false;
+    clearTimeout(toastTimer); toastTimer = setTimeout(function () { t.hidden = true; }, ms || 2600);
+  }
+  // ---------- "your turn" ping: chime (Web Audio, no files), banner, title flash, vibration, optional notification ----------
+  var SOUND_KEY = SAVE_KEY + '.sound';
+  var soundOn = (function () { try { return localStorage.getItem(SOUND_KEY) !== '0'; } catch (e) { return true; } })();
+  var actx = null, PING = { log: [], chimes: 0 };
+  function audioCtx() {
+    try { if (!actx) { var AC = window.AudioContext || window.webkitAudioContext; if (!AC) return null; actx = new AC(); } } catch (e) { return null; }
+    return actx;
+  }
+  // iOS Safari only lets audio start inside a user gesture: unlock on the first tap anywhere (Start, Join, a tile...).
+  function unlockAudio() {
+    var c = audioCtx(); if (!c) return removeUnlock();
+    try {
+      if (c.state === 'suspended' && c.resume) c.resume();
+      var b = c.createBuffer(1, 1, 22050), s = c.createBufferSource(); s.buffer = b; s.connect(c.destination); s.start(0);
+    } catch (e) { /* ignore */ }
+    if (c.state === 'running') removeUnlock();
+  }
+  var UNLOCK_EVENTS = ['pointerdown', 'touchend', 'click', 'keydown'];
+  function removeUnlock() { UNLOCK_EVENTS.forEach(function (ev) { document.removeEventListener(ev, unlockAudio, true); }); }
+  UNLOCK_EVENTS.forEach(function (ev) { document.addEventListener(ev, unlockAudio, true); });
+  function chime() {
+    if (!soundOn) return false;
+    var c = audioCtx(); if (!c) return false;
+    try {
+      if (c.state === 'suspended' && c.resume) c.resume();
+      // soft "ding-dong-ding": C6, E6, G6 with a gentle bell-like decay
+      [[1047, 0], [1319, 0.13], [1568, 0.26]].forEach(function (n) {
+        var t = c.currentTime + 0.02 + n[1], o = c.createOscillator(), o2 = c.createOscillator(), g = c.createGain();
+        o.type = 'sine'; o.frequency.value = n[0]; o2.type = 'sine'; o2.frequency.value = n[0] * 2;
+        g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.16, t + 0.015); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.55);
+        var g2 = c.createGain(); g2.gain.value = 0.25; o2.connect(g2); g2.connect(g);
+        o.connect(g); g.connect(c.destination); o.start(t); o2.start(t); o.stop(t + 0.6); o2.stop(t + 0.6);
+      });
+      PING.chimes++;
+      return true;
+    } catch (e) { return false; }
+  }
+  var BASE_TITLE = document.title, titleTimer = null;
+  function inBackground() { return document.hidden || (document.hasFocus && !document.hasFocus() && document.visibilityState !== 'visible'); }
+  function flashTitle() {
+    if (titleTimer) return;
+    var on = false;
+    titleTimer = setInterval(function () { on = !on; document.title = on ? '⭐ Your turn – Family Rummy' : BASE_TITLE; }, 1000);
+    document.title = '⭐ Your turn – Family Rummy';
+  }
+  function stopTitle() { if (titleTimer) { clearInterval(titleTimer); titleTimer = null; } document.title = BASE_TITLE; }
+  document.addEventListener('visibilitychange', function () { if (!document.hidden) stopTitle(); });
+  window.addEventListener('focus', stopTitle);
+  var bannerTimer = null;
+  function showBanner(sub) {
+    var b = $('turnBanner'); $('turnBannerSub').textContent = sub || '';
+    b.classList.remove('hide'); b.hidden = false;
+    clearTimeout(bannerTimer);
+    bannerTimer = setTimeout(function () { b.classList.add('hide'); bannerTimer = setTimeout(function () { b.hidden = true; b.classList.remove('hide'); }, 450); }, FAST ? 600 : 2200);
+  }
+  function notifyTurn(body) {
+    try {
+      if (!('Notification' in window) || Notification.permission !== 'granted') return false;
+      var opts = { body: body, tag: 'rummy-turn', renotify: true, icon: 'icons/icon-192.png', badge: 'icons/icon-192.png' };
+      if (navigator.serviceWorker && navigator.serviceWorker.controller) navigator.serviceWorker.ready.then(function (r) { r.showNotification('⭐ Your turn!', opts); }).catch(function () { });
+      else new Notification('⭐ Your turn!', opts);
+      return true;
+    } catch (e) { return false; }
+  }
+  function whoFinished(v) {
+    var lm = v.lastMove; if (!lm || !v.players[lm.seat]) return '';
+    var n = lm.played.length, who = v.players[lm.seat].name;
+    return n ? who + ' played ' + n + ' tile' + (n > 1 ? 's' : '') : lm.passed ? who + ' passed' : who + ' drew a tile';
+  }
+  // Called on every render: fires once per turn when play passes to this device's player.
+  function checkTurnPing() {
+    if (O.role ? !O.started : S.screen !== 'game') return;
+    var v = view(); if (!v) return;
+    var mode = gameMode();
+    if (mode === 'pass') { if (!needsCover()) return; }                       // pass & play: ping on the hand-over screen
+    else if (O.role !== 'guest' && S.G && S.G.players[S.G.cur].kind !== 'human') return;
+    var key = E.turnPingKey(v, S.pinged); if (!key) return;
+    S.pinged = key; save();
+    var sub = whoFinished(v), sounded = chime(), extra = {};
+    if (mode !== 'pass') {
+      showBanner(sub);
+      try { if (soundOn && navigator.vibrate) navigator.vibrate([90, 60, 90]); } catch (e) { /* iOS: no vibrate */ }
+      if (inBackground()) { flashTitle(); extra.title = true; if (mode === 'online') extra.notified = notifyTurn(sub ? sub + ' — your move!' : 'Family Rummy: your move!'); }
+    }
+    PING.log.push({ key: key, mode: mode, sound: sounded, seat: v.mySeat, banner: mode !== 'pass', title: !!extra.title });
+  }
+  function setSound(on) {
+    soundOn = on; try { localStorage.setItem(SOUND_KEY, on ? '1' : '0'); } catch (e) { /* */ }
+    var b = $('btnSound'); b.textContent = on ? '🔔' : '🔕'; b.classList.toggle('off', !on);
+    b.setAttribute('aria-pressed', on ? 'true' : 'false');
+  }
+  function myName() { return (S.set.name || '').trim() || 'Player'; }
+  function gameMode() { return O.role ? 'online' : (S.G ? S.G.mode : null); }
+
+  // ---------- whose view / whose turn ----------
+  function humanSeats() { return S.G ? S.G.players.map(function (p, i) { return p.kind === 'human' ? i : -1; }).filter(function (i) { return i >= 0; }) : []; }
+  function mySeat() {
+    if (O.role === 'guest') return S.V ? S.V.mySeat : 0;
+    var G = S.G; if (!G) return 0;
+    if (O.role === 'host') return 0;
+    if (G.players[G.cur].kind === 'human') return G.cur;
+    var hs = humanSeats();
+    return S.lastHuman !== null && hs.indexOf(S.lastHuman) >= 0 ? S.lastHuman : (hs[0] || 0);
+  }
+  function view() {
+    if (O.role === 'guest') return S.V;
+    if (!S.G) return null;
+    var v = E.viewFor(S.G, mySeat());
+    if (O.role === 'host') v.online = seatsOnline();
+    return v;
+  }
+  function needsCover() {
+    var G = S.G;
+    return !O.role && G && G.mode === 'pass' && !G.over && G.players[G.cur].kind === 'human' && humanSeats().length > 1 && S.revealed !== G.round * 10000 + G.turn;
+  }
+  function isMyTurn() {
+    var v = view();
+    if (!v || v.over || S.pending || S.screen !== 'game') return false;
+    if (v.cur !== v.mySeat) return false;
+    if (O.role !== 'guest' && S.G.players[S.G.cur].kind !== 'human') return false;
+    return !needsCover();
+  }
+  function myMelded() { var v = view(); return !!(v && v.players[v.mySeat].melded); }
+  function orderRack(seat, rack) {
+    var pos = S.rackPos[seat] || [];
+    return rack.slice().sort(function (a, b) {
+      var ia = pos.indexOf(a), ib = pos.indexOf(b);
+      if (ia < 0) ia = 1000 + rack.indexOf(a); if (ib < 0) ib = 1000 + rack.indexOf(b);
+      return ia - ib;
+    });
+  }
+  function ensureWorking() {
+    var v = view();
+    if (!isMyTurn()) { if (S.W && (!v || S.W.turn !== v.turn || S.W.round !== v.round)) S.W = null; return; }
+    var W = S.W;
+    if (W && W.turn === v.turn && W.round === v.round && W.seat === v.mySeat && sameIds(W.start.rack, v.rack) &&
+        sameIds(E.flat(W.start.table), E.flat(v.table))) return;
+    S.W = { turn: v.turn, round: v.round, seat: v.mySeat, start: { table: clone(v.table), rack: v.rack.slice() },
+      table: clone(v.table), rack: orderRack(v.mySeat, v.rack), undo: [] };
+    S.sel = []; S.hint = [];
+    S.deadline = v.timer ? Date.now() + v.timer * 1000 : 0;
+  }
+  function validateNow() { return S.W ? E.validateTurn(S.W.start, S.W, myMelded()) : null; }
+
+  // ---------- moving tiles during my turn ----------
+  function whyLocked(id) {
+    var W = S.W; if (!W) return 'Wait for your turn.';
+    var onStartTable = E.flat(W.start.table).indexOf(id) >= 0;
+    if (onStartTable && !myMelded()) return 'You can move table tiles after your first play (30 points).';
+    return '';
+  }
+  function pushUndo() { var W = S.W; W.undo.push({ table: clone(W.table), rack: W.rack.slice() }); if (W.undo.length > 150) W.undo.shift(); }
+  function moveTiles(ids, target) {
+    var W = S.W; if (!W || !ids.length || !target) return;
+    var startRack = W.start.rack;
+    if (target.type === 'rack') {
+      var stuck = ids.filter(function (t) { return startRack.indexOf(t) < 0; });
+      if (stuck.length) toast('Tiles from the table have to stay on the table.');
+      ids = ids.filter(function (t) { return startRack.indexOf(t) >= 0; });
+    }
+    ids = ids.filter(function (t) { var w = whyLocked(t); if (w) toast(w); return !w; });
+    if (!ids.length) { S.sel = []; render(); return; }
+    if (target.type === 'set' && !myMelded()) {
+      var orig = W.table[target.si], wasStart = orig && W.start.table.some(function (s) { return sameIds(s, orig); });
+      if (wasStart) { toast('Your first play has to be new sets from your own tiles.'); target = { type: 'new' }; }
+    }
+    pushUndo();
+    var tset = target.type === 'set' ? W.table[target.si] : null, idx = target.index === undefined ? 999 : target.index;
+    if (tset) idx -= ids.filter(function (t) { var i = tset.indexOf(t); return i >= 0 && i < idx; }).length;
+    if (target.type === 'rack') idx -= ids.filter(function (t) { var i = W.rack.indexOf(t); return i >= 0 && i < idx; }).length;
+    W.table.forEach(function (s) { ids.forEach(function (t) { var i = s.indexOf(t); if (i >= 0) s.splice(i, 1); }); });
+    ids.forEach(function (t) { var i = W.rack.indexOf(t); if (i >= 0) W.rack.splice(i, 1); });
+    var pref = E.jokerMeanings(W.start.table);
+    if (tset) {
+      idx = Math.max(0, Math.min(idx, tset.length));
+      Array.prototype.splice.apply(tset, [idx, 0].concat(ids));
+      var a = E.analyzeSet(tset, pref); if (a.ok) { tset.length = 0; a.order.forEach(function (t) { tset.push(t); }); }
+    } else if (target.type === 'new') {
+      var a2 = E.analyzeSet(ids, pref);
+      W.table.push(a2.ok ? a2.order.slice() : ids.slice());
+    } else {
+      idx = Math.max(0, Math.min(idx, W.rack.length));
+      Array.prototype.splice.apply(W.rack, [idx, 0].concat(ids));
+    }
+    W.table = W.table.filter(function (s) { return s.length; });
+    S.rackPos[W.seat] = W.rack.slice();
+    S.sel = []; S.hint = [];
+    afterLocalChange();
+  }
+  function afterLocalChange() { save(); sendLive(); render(); }
+  var quietUntil = 0;   // swallow the synthetic click that follows a tile tap/drag (the tile may have moved under the finger)
+  function tapTile(id) {
+    quietUntil = Date.now() + 200;
+    if (!isMyTurn()) { if (S.screen === 'game' && !view().over) toast(needsCover() ? 'Tap “Show my tiles” first.' : 'Wait for your turn.'); return; }
+    var i = S.sel.indexOf(id);
+    if (i >= 0) { S.sel.splice(i, 1); render(); return; }
+    var w = whyLocked(id); if (w) { toast(w); return; }
+    S.sel.push(id); render();
+  }
+  function undo() { var W = S.W; if (!W || !W.undo.length) return; var u = W.undo.pop(); W.table = u.table; W.rack = u.rack; S.sel = []; S.rackPos[W.seat] = W.rack.slice(); afterLocalChange(); }
+  function resetTurn() {
+    var W = S.W; if (!W) return;
+    if (!changed()) return;
+    pushUndo(); W.table = clone(W.start.table);
+    W.rack = W.rack.filter(function (t) { return W.start.rack.indexOf(t) >= 0; }).concat(W.start.rack.filter(function (t) { return W.rack.indexOf(t) < 0; }));
+    S.sel = []; S.rackPos[W.seat] = W.rack.slice(); afterLocalChange();
+  }
+  function changed() { var W = S.W; return !!W && JSON.stringify(W.table) !== JSON.stringify(W.start.table); }
+  function sortRack(by) {
+    var v = view(); if (!v) return;
+    var key = by === 'color'
+      ? function (t) { return E.isJoker(t) ? 999 : E.colorOf(t) * 20 + E.numOf(t); }
+      : function (t) { return E.isJoker(t) ? 999 : E.numOf(t) * 10 + E.colorOf(t); };
+    var cmp = function (a, b) { return key(a) - key(b) || a - b; };
+    if (S.W && isMyTurn()) { S.W.rack.sort(cmp); S.rackPos[S.W.seat] = S.W.rack.slice(); }
+    else S.rackPos[v.mySeat] = v.rack.slice().sort(cmp);
+    save(); render();
+  }
+  function showHint() {
+    var W = S.W; if (!W) return;
+    var tiles = E.hintTiles(W.start.table, W.start.rack, myMelded()).filter(function (t) { return W.rack.indexOf(t) >= 0; });
+    S.hint = tiles;
+    if (!tiles.length) toast(changed() ? 'Try Reset, then 💡 Hint again.' : (myMelded() ? 'No play found — tap 🎴 Draw.' : 'You can’t make 30 points yet — tap 🎴 Draw.'));
+    else toast('💡 Try playing the glowing tile' + (tiles.length > 1 ? 's' : '') + '!');
+    render();
+  }
+
+  // ---------- committing a turn ----------
+  function doDone() {
+    var res = validateNow(); if (!res) return;
+    if (!res.ok) { toast(res.errors[0].msg); return; }
+    commit(S.W.table, S.W.rack);
+  }
+  function commit(table, rack) {
+    if (O.role === 'guest') {
+      S.pending = true; send({ t: 'commit', turn: S.V.turn, round: S.V.round, table: table, rack: rack }); render();
+      setTimeout(function () { if (S.pending) { S.pending = false; render(); } }, 9000);
+      return;
+    }
+    var seat = S.G.cur, res = E.commitTurn(S.G, table, rack);
+    if (!res.ok) { toast(res.errors[0].msg); return; }
+    S.lastHuman = seat; S.W = null; S.rackPos[seat] = rack.slice();
+    afterGameChange();
+  }
+  function doDraw() {
+    if (!isMyTurn()) return;
+    if (O.role === 'guest') {
+      S.pending = true; S.W = null; send({ t: 'draw', turn: S.V.turn, round: S.V.round }); render();
+      setTimeout(function () { if (S.pending) { S.pending = false; render(); } }, 9000);
+      return;
+    }
+    var seat = S.G.cur, r = E.drawTurn(S.G);
+    S.lastHuman = seat; S.W = null;
+    if (r.drew !== null && r.drew !== undefined) { S.fresh[seat] = r.drew; if (gameMode() !== 'pass') toast('You drew ' + E.tileName(r.drew)); }
+    else toast('No tiles left to draw — you passed.');
+    afterGameChange();
+  }
+  function timeUp() {
+    var res = validateNow(); S.deadline = 0;
+    toast('⏰ Time’s up!');
+    if (res && res.ok) commit(S.W.table, S.W.rack);
+    else { if (S.W) { S.W.table = clone(S.W.start.table); S.W.rack = S.W.start.rack.slice(); } doDraw(); }
+  }
+  function afterGameChange() {
+    S.live = null; S.sel = []; S.hint = [];
+    announce();
+    if (O.role === 'host') broadcastState();
+    save(); render(); maybeAI();
+  }
+  function announce() {
+    var v = view(); if (!v || !v.lastMove) return;
+    var lm = v.lastMove, key = v.round + ':' + lm.turn;
+    if (S.seenMove === key) return; S.seenMove = key;
+    var who = v.players[lm.seat].name, n = lm.played.length;
+    var txt = n ? who + ' played ' + n + ' tile' + (n > 1 ? 's' : '') : lm.passed ? who + ' passed' : who + ' drew a tile';
+    if (gameMode() === 'pass') { S.coverNote = txt + '.'; return; }
+    if (lm.seat !== v.mySeat) toast(txt);
+  }
+  var aiTimer = null;
+  function maybeAI() {
+    if (O.role === 'guest' || !S.G || S.G.over || aiTimer) return;
+    var G = S.G, P = G.players[G.cur]; if (P.kind !== 'ai') return;
+    var turn = G.turn, round = G.round;
+    aiTimer = setTimeout(function () {
+      aiTimer = null;
+      if (S.G !== G || G.turn !== turn || G.round !== round || G.over) return;
+      var plan = E.aiPlan(G.table, P.rack, P.melded, P.level);
+      if (plan) E.commitTurn(G, plan.table, plan.rack); else E.drawTurn(G);
+      afterGameChange();
+    }, FAST ? 120 : 1100 + Math.random() * 700);
+  }
+
+  // ---------- rendering ----------
+  function tileHTML(t, cls, rep) {
+    if (E.isJoker(t)) {
+      return '<div class="tile jk' + (cls ? ' ' + cls : '') + '" data-id="' + t + '"><span class="n">☺</span><span class="s">JOKER</span>' +
+        (rep ? '<span class="rep ' + rep.cls + '">' + rep.txt + '</span>' : '') + '</div>';
+    }
+    var c = E.colorOf(t);
+    return '<div class="tile c' + c + (cls ? ' ' + cls : '') + '" data-id="' + t + '"><span class="n">' + E.numOf(t) + '</span><span class="s">' + SYM[c] + '</span></div>';
+  }
+  function jokerRep(a, j) {
+    var opts = a.jok && a.jok[j]; if (!opts) return null;
+    if (opts.length === 1) return { txt: E.keyNum(opts[0]), cls: 'c' + E.keyColor(opts[0]) };
+    return { txt: E.keyNum(opts[0]), cls: '' };
+  }
+  function render() {
+    if (drag && drag.active) { renderPending = true; return; }
+    $('setup').hidden = S.screen !== 'setup'; $('game').hidden = S.screen !== 'game';
+    if (S.screen === 'setup') renderSetup(); else renderGame();
+    renderOverlays();
+    checkTurnPing();
+  }
+  function renderGame() {
+    var v = view();
+    if (!v) {
+      $('players').innerHTML = ''; $('table').innerHTML = '<div class="empty-table">Connecting to the game…</div>';
+      $('rack').innerHTML = ''; $('status').textContent = O.msg || 'Connecting…'; $('hintline').textContent = '';
+      ['btnUndo', 'btnReset', 'btnHint', 'btnDraw', 'btnDone'].forEach(function (b) { $(b).disabled = true; });
+      return;
+    }
+    ensureWorking();
+    var mine = isMyTurn(), W = S.W, res = mine ? validateNow() : null, melded = myMelded(), cover = needsCover();
+    // players
+    $('players').innerHTML = v.players.map(function (p, i) {
+      var av = p.kind === 'ai' ? AI_AV[(i + 2) % 3] : AV[i % 4];
+      var off = v.online && p.kind === 'remote' && !v.online[i] ? ' <span class="off">offline</span>' : '';
+      return '<div class="pchip' + (i === v.cur && !v.over ? ' turn' : '') + (i === v.mySeat ? ' me' : '') + '"><span class="av">' + av + '</span>' +
+        '<span class="nm">' + esc(p.name) + (O.role && i === v.mySeat ? ' (you)' : '') + '</span><span class="ct"><b>' + p.count + '</b> tiles' + (p.melded ? ' ✓' : '') + ' · ' + p.score + ' pts</span>' + off + '</div>';
+    }).join('');
+    $('poolN').textContent = v.pool;
+    // table
+    var table = mine ? W.table : (S.live && S.live.turn === v.turn && S.live.round === v.round ? S.live.table : v.table);
+    var startIds = mine ? E.flat(W.start.table) : [];
+    var freshIds = v.lastMove && v.lastMove.seat !== v.mySeat && v.lastMove.turn === v.turn - 1 ? v.lastMove.played : [];
+    var pref = E.jokerMeanings(mine ? W.start.table : v.table);
+    var html = table.map(function (s, si) {
+      var a = mine ? res.sets[si] : E.analyzeSet(s, pref);
+      var placedHere = mine && s.some(function (t) { return startIds.indexOf(t) < 0; });
+      var cls = a.ok ? 'ok' : (s.length < 3 ? 'short' : 'bad');
+      var tag = a.ok ? (a.kind === 'run' ? 'Run' : 'Group') + ' · ' + a.points + ' pts' : (s.length < 3 ? 'Needs 3+ tiles' : a.reason);
+      if (!mine && !a.ok) cls = 'short';
+      return '<div class="set ' + cls + (placedHere ? ' mine' : '') + '" data-si="' + si + '">' + s.map(function (t) {
+        var c = [];
+        if (mine && startIds.indexOf(t) < 0) c.push('mine');
+        if (mine && !melded && startIds.indexOf(t) >= 0) c.push('locked');
+        if (S.sel.indexOf(t) >= 0) c.push('sel');
+        if (freshIds.indexOf(t) >= 0) c.push('fresh');
+        return tileHTML(t, c.join(' '), E.isJoker(t) && a.ok ? jokerRep(a, t) : null);
+      }).join('') + '<div class="slot">+</div><div class="tag">' + esc(tag) + '</div></div>';
+    }).join('');
+    if (mine) html += '<div id="newSet">' + (S.sel.length ? '➕ Tap here to make a new set' : '➕ Drop tiles here<br>for a new set') + '</div>';
+    else if (!table.length) html += '<div class="empty-table">The table is empty. First plays need 30 points!</div>';
+    var tEl = $('table'), scroll = tEl.scrollTop;
+    tEl.innerHTML = html; tEl.scrollTop = scroll;
+    tEl.classList.toggle('selecting', mine && S.sel.length > 0);
+    // rack
+    var rack = mine ? W.rack : orderRack(v.mySeat, v.rack), fresh = S.fresh[v.mySeat];
+    if (cover) $('rack').innerHTML = '<div class="hidden-rack">🙈 Tiles hidden</div>';
+    else $('rack').innerHTML = rack.map(function (t) {
+      var c = [];
+      if (S.sel.indexOf(t) >= 0) c.push('sel');
+      if (S.hint.indexOf(t) >= 0) c.push('hint');
+      if (t === fresh) c.push('fresh');
+      return tileHTML(t, c.join(' '));
+    }).join('');
+    $('rackLabel').textContent = cover ? '' : (gameMode() === 'pass' ? v.players[v.mySeat].name + '’s tiles' : 'Your tiles') + ' (' + rack.length + ')';
+    // controls
+    $('btnUndo').disabled = !mine || !W.undo.length;
+    $('btnReset').disabled = !mine || !changed();
+    $('btnHint').disabled = !mine;
+    $('btnDraw').disabled = !mine;
+    $('btnDraw').textContent = v.pool ? '🎴 Draw' : '⏭ Pass';
+    $('btnDone').disabled = v.over ? false : !(mine && res.ok);
+    $('btnDone').textContent = v.over ? '🏁 Results' : '✅ Done';
+    $('btnNewSet').hidden = !(mine && S.sel.length);
+    var skip = O.role === 'host' && S.G && !S.G.over && S.G.players[S.G.cur].kind === 'remote' && !seatsOnline()[S.G.cur];
+    $('btnSkip').hidden = !skip;
+    // status
+    var st = '', hl = '', hcls = '';
+    var curP = v.players[v.cur];
+    if (v.over) { st = '🏁 Round over'; hl = v.players[v.over.winner].name + ' won this round.'; }
+    else if (mine) {
+      st = (gameMode() === 'pass' ? v.players[v.mySeat].name + ', it’s your turn' : 'Your turn') + timerHTML();
+      if (!res.ok) {
+        var e0 = res.errors.filter(function (e) { return e.code !== 'none'; })[0];
+        if (!melded && (!e0 || e0.code === 'meld30')) {
+          var pts = res.meldPoints || 0;
+          hl = pts ? 'First play needs 30 points — you have ' + pts + ' so far.' : 'First play: make sets worth 30+ points from your own tiles (or tap Draw).';
+          hcls = pts && !e0 ? '' : (pts ? 'warn' : '');
+          if (e0 && e0.code === 'invalid') { hl = res.sets.map(function (a) { return a; }).filter(function (a) { return !a.ok; })[0].reason; hcls = 'warn'; }
+        } else if (e0) {
+          hcls = 'warn';
+          if (e0.code === 'invalid') { var bad = res.sets.filter(function (a) { return !a.ok; })[0]; hl = 'Fix the red set: ' + bad.reason + '.'; }
+          else hl = e0.msg;
+        } else hl = 'Drag tiles onto the table, or tap 🎴 Draw if you can’t play.';
+      } else { hl = '👍 Looks good! Tap ✅ Done.'; hcls = 'good'; }
+      if (S.pending) { hl = 'Sending…'; hcls = ''; }
+    } else if (cover) st = 'Pass to ' + curP.name;
+    else if (S.pending) st = 'Sending…';
+    else if (curP.kind === 'ai') st = AI_AV[(v.cur + 2) % 3] + ' ' + curP.name + ' is thinking…';
+    else {
+      st = 'Waiting for ' + curP.name + '…';
+      if (v.online && curP.kind === 'remote' && !v.online[v.cur]) hl = curP.name + ' is offline right now.';
+      else if (S.live && S.live.turn === v.turn) hl = curP.name + ' is moving tiles…';
+    }
+    if (O.role === 'guest' && !O.connected) { hl = '🟠 ' + (O.msg || 'Reconnecting…'); hcls = 'warn'; }
+    if (O.role === 'host' && O.state !== 'connected' && O.state !== 'waiting' && O.msg) { hl = '🟠 ' + O.msg; hcls = 'warn'; }
+    $('status').innerHTML = st;
+    var hEl = $('hintline'); hEl.textContent = hl; hEl.className = hcls;
+  }
+  function timerHTML() {
+    if (!S.deadline) return '';
+    var left = Math.max(0, Math.ceil((S.deadline - Date.now()) / 1000));
+    return '<span class="timer' + (left <= 10 ? ' low' : '') + '" id="timerTxt">⏱ ' + left + 's</span>';
+  }
+  function renderOverlays() {
+    var v = S.screen === 'game' ? view() : null;
+    // pass & play cover
+    var cover = S.screen === 'game' && needsCover();
+    $('cover').hidden = !cover;
+    if (cover) {
+      var p = S.G.players[S.G.cur];
+      $('coverTitle').textContent = 'Pass to ' + p.name + ' 👉';
+      $('coverText').textContent = (S.coverNote ? S.coverNote + ' ' : '') + 'Only ' + p.name + ' should look!';
+      $('coverGo').textContent = 'I’m ' + p.name + ' — show my tiles';
+    }
+    // game over
+    var over = v && v.over, key = v && v.over ? v.round + '' : null;
+    $('overOverlay').hidden = !(over && S.overSeen !== key);
+    if (over && S.overSeen !== key) {
+      var o = v.over, w = v.players[o.winner];
+      $('overEmoji').textContent = o.winner === v.mySeat && gameMode() !== 'pass' ? '🎉' : '🏆';
+      $('overTitle').textContent = (o.winner === v.mySeat && gameMode() !== 'pass' ? 'You win!' : w.name + ' wins!');
+      $('overText').textContent = o.reason === 'out' ? w.name + ' played every tile.' : 'No tiles left to draw, and nobody could play — lowest rack wins.';
+      $('overScores').innerHTML = '<tr><th>Player</th><th>Left in rack</th><th>This round</th><th>Total</th></tr>' + v.players.map(function (p, i) {
+        return '<tr' + (i === o.winner ? ' class="win"' : '') + '><td>' + (i === o.winner ? '🏆 ' : '') + esc(p.name) + '</td><td>' + o.totals[i] + '</td><td>' + (o.deltas[i] > 0 ? '+' : '') + o.deltas[i] + '</td><td>' + p.score + '</td></tr>';
+      }).join('');
+      $('overNext').hidden = O.role === 'guest';
+      $('overText').textContent += O.role === 'guest' ? ' Waiting for the host to start the next round…' : '';
+    }
+  }
+  function renderSetup() {
+    var hasLocal = S.G && S.G.mode !== 'online' && !O.role;
+    $('continueCard').hidden = !hasLocal;
+    if (hasLocal) $('continueNote').textContent = (S.G.mode === 'pass' ? 'Pass & Play' : 'vs Computer') + ' · ' + S.G.players.map(function (p) { return p.name; }).join(', ') + ' · round ' + S.G.round + (S.G.over ? ' (finished)' : '');
+    var m = O.role ? 'online' : S.setupMode;
+    segOn('segMode', m);
+    $('optComputer').hidden = m !== 'computer'; $('optPass').hidden = m !== 'pass'; $('optOnline').hidden = m !== 'online';
+    $('nameBlock').hidden = m === 'pass';
+    $('btnStart').hidden = m === 'online';
+    $('timerBlock').hidden = m === 'online' && O.role === 'guest';
+    segOn('segAiCount', String(S.set.aiCount)); segOn('segLevel', S.set.level); segOn('segPassCount', String(S.set.passCount)); segOn('segTimer', String(S.set.timer));
+    if (document.activeElement !== $('myName')) $('myName').value = S.set.name;
+    var names = $('passNames'), want = S.set.passCount;
+    if (names.children.length !== want) {
+      names.innerHTML = '';
+      for (var i = 0; i < want; i++) names.innerHTML += '<input class="txt" data-i="' + i + '" maxlength="14" placeholder="' + AV[i] + ' Player ' + (i + 1) + '" value="' + esc(S.set.passNames[i] || '') + '">';
+    }
+    renderOnline();
+  }
+  function segOn(id, v) { [].forEach.call($(id).querySelectorAll('button'), function (b) { b.classList.toggle('on', b.dataset.v === v); }); }
+
+  // ---------- pointer: drag & drop + tap-to-select ----------
+  var drag = null, renderPending = false, ghost = null, lastTarget = null;
+  document.addEventListener('pointerdown', function (e) {
+    var el = e.target.closest && e.target.closest('.tile[data-id]');
+    if (!el || !el.closest('#table, #rack') || (e.button && e.button !== 0) || drag) return;
+    drag = { id: +el.dataset.id, el: el, x0: e.clientX, y0: e.clientY, pid: e.pointerId, active: false };
+    try { el.setPointerCapture(e.pointerId); } catch (err) { /* ignore */ }
+  });
+  document.addEventListener('pointermove', function (e) {
+    if (!drag || e.pointerId !== drag.pid) return;
+    if (!drag.active) {
+      var dx = e.clientX - drag.x0, dy = e.clientY - drag.y0;
+      if (dx * dx + dy * dy < 81) return;
+      if (!isMyTurn()) { drag = null; return; }
+      var why = whyLocked(drag.id); if (why) { toast(why); drag = null; return; }
+      startDrag();
+    }
+    e.preventDefault();
+    moveGhost(e.clientX, e.clientY);
+    markTarget(hitTest(e.clientX, e.clientY));
+    autoScroll(e.clientY);
+  });
+  document.addEventListener('pointerup', function (e) {
+    if (!drag || e.pointerId !== drag.pid) return;
+    var d = drag; drag = null;
+    if (d.active) { quietUntil = Date.now() + 200; var t = hitTest(e.clientX, e.clientY); endDrag(); if (t) moveTiles(d.ids, t); else render(); }
+    else tapTile(d.id);
+  });
+  document.addEventListener('pointercancel', function (e) { if (drag && e.pointerId === drag.pid) { var a = drag.active; drag = null; if (a) { endDrag(); render(); } } });
+  document.addEventListener('touchmove', function (e) { if (drag && drag.active) e.preventDefault(); }, { passive: false });
+  function startDrag() {
+    drag.active = true;
+    var ids = S.sel.indexOf(drag.id) >= 0 ? S.sel.filter(function (t) { return !whyLocked(t); }) : [drag.id];
+    drag.ids = ids;
+    ghost = document.createElement('div'); ghost.className = 'ghost';
+    ghost.innerHTML = ids.map(function (t) { return tileHTML(t, ''); }).join('');
+    var sz = drag.el.closest('#rack') ? 'var(--rw)' : 'var(--tw)';
+    [].forEach.call(ghost.children, function (c) { c.style.setProperty('--s', sz); });
+    document.body.appendChild(ghost);
+    ids.forEach(function (t) { var el = document.querySelector('#game .tile[data-id="' + t + '"]'); if (el) el.classList.add('lifted'); });
+  }
+  function moveGhost(x, y) { if (!ghost) return; var r = ghost.getBoundingClientRect(); ghost.style.transform = 'translate(' + (x - r.width / 2) + 'px,' + (y - r.height * 0.75) + 'px)'; }
+  function endDrag() {
+    if (ghost) { ghost.remove(); ghost = null; }
+    markTarget(null);
+    [].forEach.call(document.querySelectorAll('.tile.lifted'), function (el) { el.classList.remove('lifted'); });
+    if (renderPending) { renderPending = false; render(); }
+  }
+  function countBefore(els, x, y) {
+    var n = 0;
+    for (var i = 0; i < els.length; i++) {
+      var r = els[i].getBoundingClientRect();
+      if (r.bottom < y || (r.top <= y + 4 && r.bottom >= y - 4 && r.left + r.width / 2 < x) || (r.top > y && false)) n++;
+    }
+    return n;
+  }
+  function hitTest(x, y) {
+    if (ghost) ghost.style.display = 'none';
+    var el = document.elementFromPoint(x, y);
+    if (ghost) ghost.style.display = '';
+    if (!el) return null;
+    var setEl = el.closest('.set');
+    if (setEl && setEl.closest('#table')) {
+      var tiles = setEl.querySelectorAll('.tile');
+      return { type: 'set', si: +setEl.dataset.si, index: countBefore(tiles, x, y), el: setEl };
+    }
+    if (el.closest('#newSet') || el.closest('.tablewrap')) return { type: 'new', el: $('newSet') };
+    if (el.closest('.rackwrap')) return { type: 'rack', index: countBefore($('rack').querySelectorAll('.tile'), x, y), el: $('rack') };
+    return null;
+  }
+  function markTarget(t) {
+    var el = t && t.el;
+    if (lastTarget && lastTarget !== el) lastTarget.classList.remove('target');
+    if (el) el.classList.add('target');
+    lastTarget = el;
+  }
+  function autoScroll(y) {
+    var tEl = $('table'), r = tEl.getBoundingClientRect();
+    if (y > r.top && y < r.top + 40) tEl.scrollTop -= 12;
+    else if (y < r.bottom && y > r.bottom - 40) tEl.scrollTop += 12;
+  }
+  // tap-to-place targets
+  $('table').addEventListener('click', function (e) {
+    if (!isMyTurn() || !S.sel.length || e.target.closest('.tile') || Date.now() < quietUntil) return;
+    var setEl = e.target.closest('.set');
+    if (setEl) moveTiles(S.sel.slice(), { type: 'set', si: +setEl.dataset.si, index: 999 });
+    else moveTiles(S.sel.slice(), { type: 'new' });
+  });
+  document.querySelector('.rackwrap').addEventListener('click', function (e) {
+    if (!isMyTurn() || !S.sel.length || e.target.closest('.tile') || e.target.closest('button') || Date.now() < quietUntil) return;
+    moveTiles(S.sel.slice(), { type: 'rack', index: 999 });
+  });
+
+  // ---------- buttons ----------
+  $('btnUndo').onclick = undo;
+  $('btnReset').onclick = resetTurn;
+  $('btnHint').onclick = showHint;
+  $('btnDraw').onclick = function () {
+    if (changed() && !window.confirm('Put your tiles back and draw a tile instead?')) return;
+    if (S.W) { S.W.table = clone(S.W.start.table); S.W.rack = S.W.rack.filter(function (t) { return S.W.start.rack.indexOf(t) >= 0; }); }
+    doDraw();
+  };
+  $('btnDone').onclick = function () { var v = view(); if (v && v.over) { S.overSeen = null; render(); return; } doDone(); };
+  $('btnNewSet').onclick = function () { moveTiles(S.sel.slice(), { type: 'new' }); };
+  $('btnSkip').onclick = function () { if (O.role === 'host' && window.confirm('Skip ' + S.G.players[S.G.cur].name + '’s turn? They draw a tile.')) { E.drawTurn(S.G); afterGameChange(); } };
+  $('sortColor').onclick = function () { sortRack('color'); };
+  $('sortNum').onclick = function () { sortRack('num'); };
+  $('btnMenu').onclick = function () { S.screen = 'setup'; S.sel = []; save(); render(); window.scrollTo(0, 0); };
+  $('btnSound').onclick = function () { setSound(!soundOn); if (soundOn) { unlockAudio(); chime(); } toast(soundOn ? '🔔 Your-turn sound is on' : '🔕 Your-turn sound is off'); };
+  setSound(soundOn);
+  $('btnNotify').onclick = function () {
+    if (!('Notification' in window)) return;
+    try { var p = Notification.requestPermission(function () { renderOnline(); }); if (p && p.then) p.then(function () { renderOnline(); }); } catch (e) { /* */ }
+  };
+  $('btnHowto1').onclick = $('btnHowto2').onclick = function () { $('howto').hidden = false; };
+  $('howtoClose').onclick = function () { $('howto').hidden = true; try { localStorage.setItem(SAVE_KEY + '.howto', '1'); } catch (e) { /* */ } };
+  $('coverGo').onclick = function () { S.revealed = S.G.round * 10000 + S.G.turn; S.coverNote = ''; save(); render(); };
+  $('overLook').onclick = function () { var v = view(); S.overSeen = v.round + ''; save(); render(); };
+  $('overMenu').onclick = function () { var v = view(); S.overSeen = v.round + ''; S.screen = 'setup'; save(); render(); };
+  $('overNext').onclick = function () {
+    if (O.role === 'guest' || !S.G) return;
+    E.newRound(S.G); S.W = null; S.overSeen = null; S.fresh = {}; S.revealed = -1; S.coverNote = '';
+    afterGameChange();
+  };
+  // setup
+  $('segMode').onclick = function (e) {
+    var b = e.target.closest('button'); if (!b) return;
+    if (O.role && b.dataset.v !== 'online') { if (!window.confirm('Leave the online game?')) return; leaveOnline(); }
+    S.setupMode = b.dataset.v; save(); render();
+  };
+  function segHandler(id, fn) { $(id).onclick = function (e) { var b = e.target.closest('button'); if (b) { fn(b.dataset.v); save(); render(); } }; }
+  segHandler('segAiCount', function (v) { S.set.aiCount = +v; });
+  segHandler('segLevel', function (v) { S.set.level = v; });
+  segHandler('segPassCount', function (v) { S.set.passCount = +v; });
+  segHandler('segTimer', function (v) { S.set.timer = +v; });
+  $('myName').addEventListener('input', function (e) { S.set.name = e.target.value; save(); });
+  $('passNames').addEventListener('input', function (e) { var i = +e.target.dataset.i; S.set.passNames[i] = e.target.value; save(); });
+  $('btnContinue').onclick = function () { S.screen = 'game'; save(); render(); maybeAI(); };
+  $('btnStart').onclick = function () {
+    if (S.G && !S.G.over && S.G.mode !== 'online' && !window.confirm('Start a new game? The game in progress will end.')) return;
+    var players;
+    if (S.setupMode === 'pass') {
+      players = [];
+      for (var i = 0; i < S.set.passCount; i++) players.push({ name: (S.set.passNames[i] || '').trim() || 'Player ' + (i + 1), kind: 'human' });
+    } else {
+      players = [{ name: myName() === 'Player' ? 'You' : myName(), kind: 'human' }];
+      for (var k = 0; k < S.set.aiCount; k++) players.push({ name: AI_NAMES[k], kind: 'ai', level: S.set.level });
+    }
+    startGame(players, S.setupMode);
+  };
+  function startGame(players, mode) {
+    S.G = E.newGame(players, { timer: S.set.timer });
+    S.G.mode = mode;
+    S.W = null; S.sel = []; S.hint = []; S.revealed = -1; S.lastHuman = null; S.seenMove = null; S.overSeen = null; S.fresh = {}; S.rackPos = {}; S.coverNote = ''; S.pinged = null;
+    S.screen = 'game';
+    save(); render(); maybeAI();
+    try { if (!localStorage.getItem(SAVE_KEY + '.howto')) $('howto').hidden = false; } catch (e) { /* */ }
+  }
+
+  // ---------- online play (PeerJS over WebRTC; loaded from a CDN only when used) ----------
+  var PEER_SRC = ['https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js', 'https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js'];
+  var ID_PREFIX = 'familyrummy-v1-', CODE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  function makeCode() { var c = ''; for (var i = 0; i < 5; i++) c += CODE_CHARS[(Math.random() * CODE_CHARS.length) | 0]; return c; }
+  function makeCid() { return 'c' + Math.random().toString(36).slice(2, 12); }
+  function loadPeer(cb) {
+    if (window.Peer) return cb(null);
+    var i = 0;
+    (function next() {
+      if (i >= PEER_SRC.length) return cb(new Error('Couldn’t load the online module — check the internet connection.'));
+      var s = document.createElement('script'); s.src = PEER_SRC[i++]; s.async = true;
+      s.onload = function () { cb(window.Peer ? null : new Error('Online module failed to start.')); };
+      s.onerror = function () { s.remove(); next(); };
+      document.head.appendChild(s);
+    })();
+  }
+  function onlineError(msg) { O.state = 'error'; O.msg = msg; render(); }
+  function sendTo(c, obj) { try { if (c && c.conn && c.conn.open !== false) c.conn.send(obj); } catch (e) { /* ignore */ } }
+  function send(obj) { if (O.role === 'guest') { if (O.conn && O.connected) { try { O.conn.send(obj); } catch (e) { /* */ } } } else O.conns.forEach(function (c) { if (c.cid) sendTo(c, obj); }); }
+  function destroyPeer() {
+    if (O.conn) { try { O.conn.close(); } catch (e) { /* */ } }
+    O.conns.forEach(function (c) { try { c.conn.close(); } catch (e) { /* */ } });
+    if (O.peer) { try { O.peer.destroy(); } catch (e) { /* */ } }
+    O.peer = null; O.conn = null; O.conns = []; O.connected = false;
+  }
+  function startHeartbeat() {
+    if (O.timer) return;
+    O.timer = setInterval(function () {
+      if (!O.role) return;
+      var now = Date.now();
+      if (O.role === 'host') {
+        O.conns.slice().forEach(function (c) { sendTo(c, { t: 'ping' }); if (now - c.lastSeen > 12000) dropConn(c); });
+        if (O.peer && O.peer.disconnected && !O.peer.destroyed) { try { O.peer.reconnect(); } catch (e) { /* */ } }
+      } else if (O.connected) {
+        send({ t: 'ping' });
+        if (now - O.lastSeen > 12000) lostConn();
+      } else if (O.peer && O.peer.open && now - (O.lastTry || 0) > 4000) connectToHost();
+      else if (O.peer && O.peer.disconnected && !O.peer.destroyed) { try { O.peer.reconnect(); } catch (e) { /* */ } }
+    }, 3000);
+  }
+  // --- host ---
+  function seatOfCid(cid) { if (!S.G || !cid) return -1; for (var i = 0; i < S.G.players.length; i++) if (S.G.players[i].cid === cid) return i; return -1; }
+  function seatsOnline() {
+    if (!S.G) return [];
+    return S.G.players.map(function (p) { return p.kind !== 'remote' || O.conns.some(function (c) { return c.cid && c.cid === p.cid; }); });
+  }
+  function hostCreate(code, resume) {
+    if (!resume && S.G && !S.G.over && S.G.mode !== 'online' && !window.confirm('Start an online game? The game in progress on this device will end.')) return;
+    O.role = 'host'; O.code = code || makeCode(); O.state = 'loading'; O.msg = 'Starting…'; O.retries = 0;
+    if (!resume) { O.lobby = [{ name: myName(), kind: 'human' }]; O.started = false; }
+    save(); render();
+    loadPeer(function (err) { if (err) return onlineError(err.message); startHostPeer(); });
+  }
+  function startHostPeer() {
+    destroyPeer();
+    var peer = O.peer = new window.Peer(ID_PREFIX + O.code, { debug: 1 });
+    peer.on('open', function () { O.retries = 0; O.state = 'waiting'; O.msg = ''; render(); });
+    peer.on('connection', function (conn) {
+      conn.on('open', function () {
+        var c = { conn: conn, cid: null, name: '', lastSeen: Date.now() };
+        O.conns.push(c);
+        conn.on('data', function (d) { onHostData(c, d); });
+        conn.on('close', function () { dropConn(c); });
+        conn.on('error', function () { dropConn(c); });
+      });
+    });
+    peer.on('disconnected', function () { if (!peer.destroyed) setTimeout(function () { try { if (!peer.destroyed) peer.reconnect(); } catch (e) { /* */ } }, 1500); });
+    peer.on('error', function (err) {
+      if (O.peer !== peer || O.role !== 'host') return;
+      if (err.type === 'unavailable-id' && O.retries < 10) {
+        O.retries++; O.state = 'reconnecting'; O.msg = 'Getting game code ' + O.code + ' back…'; render();
+        setTimeout(function () { if (O.role === 'host' && O.peer === peer) startHostPeer(); }, 3000);
+      } else if (err.type === 'unavailable-id') onlineError('That game code is busy. Leave and create a new game.');
+      else if (['network', 'server-error', 'socket-error', 'socket-closed', 'disconnected'].indexOf(err.type) >= 0) {
+        O.state = 'reconnecting'; O.msg = 'Internet hiccup — reconnecting…'; render();
+        setTimeout(function () { if (O.role === 'host' && O.peer === peer && !O.conns.length) startHostPeer(); }, 4000);
+      }
+    });
+    startHeartbeat();
+  }
+  function dropConn(c) {
+    var i = O.conns.indexOf(c); if (i < 0) return;
+    O.conns.splice(i, 1); try { c.conn.close(); } catch (e) { /* */ }
+    if (!O.started && c.cid) {
+      var k = O.lobby.findIndex(function (p) { return p.cid === c.cid; });
+      if (k > 0 && !O.conns.some(function (x) { return x.cid === c.cid; })) { O.lobby.splice(k, 1); broadcastLobby(); }
+    } else if (O.started) broadcastState();
+    save(); render();
+  }
+  function broadcastLobby() {
+    O.conns.forEach(function (c) {
+      if (!c.cid) return;
+      var you = O.lobby.findIndex(function (p) { return p.cid === c.cid; });
+      sendTo(c, { t: 'lobby', players: O.lobby.map(function (p) { return { name: p.name, kind: p.kind, level: p.level }; }), you: you });
+    });
+  }
+  function broadcastState() { if (!S.G) return; O.conns.forEach(function (c) { sendState(c); }); }
+  function sendState(c) { var seat = seatOfCid(c.cid); if (seat >= 0) sendTo(c, { t: 'state', view: E.viewFor(S.G, seat), online: seatsOnline() }); }
+  function onHostData(c, d) {
+    c.lastSeen = Date.now();
+    if (!d || !d.t) return;
+    var seat;
+    switch (d.t) {
+      case 'ping': sendTo(c, { t: 'pong' }); break;
+      case 'hello': {
+        c.cid = String(d.cid || '').slice(0, 24); c.name = String(d.name || 'Friend').slice(0, 14);
+        O.conns.filter(function (x) { return x !== c && x.cid === c.cid; }).forEach(function (x) { O.conns.splice(O.conns.indexOf(x), 1); try { x.conn.close(); } catch (e) { /* */ } });
+        if (!O.started) {
+          var k = O.lobby.findIndex(function (p) { return p.cid === c.cid; });
+          if (k < 0) {
+            if (O.lobby.length >= 4) { sendTo(c, { t: 'reject', msg: 'That game is full (4 players).' }); return; }
+            O.lobby.push({ name: c.name, kind: 'remote', cid: c.cid });
+            toast(c.name + ' joined!');
+          } else O.lobby[k].name = c.name;
+          broadcastLobby();
+        } else {
+          seat = seatOfCid(c.cid);
+          if (seat < 0) { sendTo(c, { t: 'reject', msg: 'That game already started.' }); return; }
+          sendState(c); broadcastState(); toast(S.G.players[seat].name + ' is connected');
+        }
+        save(); render();
+        break;
+      }
+      case 'commit': case 'draw': {
+        seat = seatOfCid(c.cid);
+        if (!S.G || S.G.over || seat !== S.G.cur || d.turn !== S.G.turn || d.round !== S.G.round) { sendState(c); return; }
+        if (d.t === 'draw') E.drawTurn(S.G);
+        else {
+          var res = E.commitTurn(S.G, d.table, d.rack);
+          if (!res.ok) { sendTo(c, { t: 'reject-move', msg: res.errors[0].msg }); sendState(c); return; }
+        }
+        afterGameChange();
+        break;
+      }
+      case 'live': {
+        seat = seatOfCid(c.cid);
+        if (!S.G || seat !== S.G.cur || d.turn !== S.G.turn) return;
+        S.live = { turn: d.turn, round: d.round, table: d.table };
+        O.conns.forEach(function (x) { if (x !== c && x.cid) sendTo(x, { t: 'live', turn: d.turn, round: d.round, table: d.table }); });
+        render();
+        break;
+      }
+    }
+  }
+  function hostStart() {
+    if (O.role !== 'host' || O.lobby.length < 2) return;
+    var players = O.lobby.map(function (p) { return { name: p.name, kind: p.kind, level: p.level, cid: p.cid }; });
+    S.G = E.newGame(players, { timer: S.set.timer }); S.G.mode = 'online';
+    O.started = true;
+    S.W = null; S.sel = []; S.seenMove = null; S.overSeen = null; S.fresh = {}; S.rackPos = {}; S.pinged = null;
+    S.screen = 'game';
+    afterGameChange();
+  }
+  // --- guest ---
+  function joinGame(code) {
+    code = (code || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+    if (code.length < 4) { $('onError').hidden = false; $('onError').textContent = 'Type the game code your friend sees (5 letters).'; return; }
+    O.role = 'guest'; O.code = code; O.cid = O.cid || makeCid(); O.everConnected = false; O.state = 'loading'; O.msg = 'Connecting…';
+    O.started = false; O.lobby = []; S.V = null; S.W = null;
+    if (S.pingCode !== code) { S.pinged = null; S.pingCode = code; }
+    save(); render();
+    loadPeer(function (err) { if (err) return onlineError(err.message); startGuestPeer(); });
+  }
+  function startGuestPeer() {
+    destroyPeer();
+    var peer = O.peer = new window.Peer({ debug: 1 });
+    peer.on('open', function () { connectToHost(); });
+    peer.on('disconnected', function () { if (!peer.destroyed) setTimeout(function () { try { if (!peer.destroyed) peer.reconnect(); } catch (e) { /* */ } }, 1500); });
+    peer.on('error', function (err) {
+      if (O.peer !== peer || O.role !== 'guest') return;
+      if (err.type === 'peer-unavailable') {
+        O.state = 'reconnecting';
+        O.msg = O.everConnected ? 'Waiting for the host to come back…' : 'No game with code ' + O.code + ' yet — check the code. Still trying…';
+        render();
+      } else if (['network', 'server-error', 'socket-error', 'socket-closed'].indexOf(err.type) >= 0) {
+        O.state = 'reconnecting'; O.msg = 'Internet hiccup — reconnecting…'; render();
+        setTimeout(function () { if (O.role === 'guest' && O.peer === peer && !O.connected) startGuestPeer(); }, 4000);
+      }
+    });
+    startHeartbeat();
+  }
+  function connectToHost() {
+    if (!O.peer || O.peer.destroyed || !O.peer.open || O.connected) return;
+    O.lastTry = Date.now();
+    var conn = O.peer.connect(ID_PREFIX + O.code, { reliable: true, serialization: 'json' });
+    conn.on('open', function () {
+      if (O.conn && O.conn !== conn) { try { O.conn.close(); } catch (e) { /* */ } }
+      O.conn = conn; O.connected = true; O.everConnected = true; O.state = 'connected'; O.msg = ''; O.lastSeen = Date.now();
+      conn.on('data', function (d) { if (O.conn === conn) onGuestData(d); });
+      conn.on('close', function () { if (O.conn === conn) lostConn(); });
+      conn.on('error', function () { if (O.conn === conn) lostConn(); });
+      send({ t: 'hello', cid: O.cid, name: myName() });
+      render();
+    });
+  }
+  function lostConn() {
+    var c = O.conn; O.conn = null; O.connected = false; S.pending = false;
+    if (c) { try { c.close(); } catch (e) { /* */ } }
+    O.state = 'reconnecting'; O.msg = 'Lost the connection — trying again…';
+    render();
+  }
+  function onGuestData(d) {
+    O.lastSeen = Date.now();
+    if (!d || !d.t) return;
+    switch (d.t) {
+      case 'ping': send({ t: 'pong' }); break;
+      case 'lobby':
+        O.lobby = d.players || []; O.you = d.you; O.started = false;
+        if (S.screen !== 'setup') S.screen = 'setup';
+        S.setupMode = 'online'; render();
+        break;
+      case 'state': {
+        var prev = S.V, v = d.view; v.online = d.online;
+        if (prev && prev.round === v.round) {
+          var newIds = v.rack.filter(function (t) { return prev.rack.indexOf(t) < 0; });
+          if (newIds.length === 1 && prev.turn !== v.turn && v.lastMove && v.lastMove.seat === v.mySeat && v.lastMove.drew) { S.fresh[v.mySeat] = newIds[0]; toast('You drew ' + E.tileName(newIds[0])); }
+        }
+        if (!prev || prev.turn !== v.turn || prev.round !== v.round) S.live = null;
+        if (prev && prev.round !== v.round) { S.fresh = {}; S.W = null; }
+        S.V = v; O.started = true; S.pending = false;
+        if (S.screen !== 'game') S.screen = 'game';
+        announce(); save(); render();
+        break;
+      }
+      case 'live':
+        if (S.V && d.turn === S.V.turn && S.V.cur !== S.V.mySeat) { S.live = d; render(); }
+        break;
+      case 'reject-move': S.pending = false; toast(d.msg || 'That move wasn’t allowed.'); render(); break;
+      case 'reject': destroyPeer(); onlineError(d.msg || 'Couldn’t join that game.'); break;
+    }
+  }
+  var liveTimer = null;
+  function sendLive() {
+    if (!O.role || !S.W) return;
+    clearTimeout(liveTimer);
+    liveTimer = setTimeout(function () {
+      if (!S.W) return;
+      var msg = { t: 'live', turn: S.W.turn, round: S.W.round, table: S.W.table };
+      if (O.role === 'guest') send(msg); else O.conns.forEach(function (c) { if (c.cid) sendTo(c, msg); });
+    }, 200);
+  }
+  function leaveOnline() {
+    var wasHost = O.role === 'host';
+    destroyPeer(); O.role = null; O.code = ''; O.state = 'idle'; O.msg = ''; O.lobby = []; O.started = false; O.everConnected = false;
+    if (O.timer) { clearInterval(O.timer); O.timer = null; }
+    if (location.hash.indexOf('join=') >= 0) history.replaceState(null, '', location.pathname + location.search);
+    if (wasHost && S.G && S.G.mode === 'online') S.G = null;
+    S.V = null; S.W = null; S.screen = 'setup';
+    save(); render();
+  }
+  function shareLink() { return /^https?:$/.test(location.protocol) ? location.origin + location.pathname + '#join=' + O.code : ''; }
+  function renderOnline() {
+    $('onSetup').hidden = !!O.role; $('onLobby').hidden = !O.role;
+    var err = $('onError');
+    if (!O.role) { if (O.state !== 'error') err.hidden = true; else { err.hidden = false; err.textContent = O.msg; } return; }
+    err.hidden = O.state !== 'error'; err.textContent = O.state === 'error' ? O.msg : '';
+    var host = O.role === 'host';
+    var st = host ? (O.state === 'waiting' || O.state === 'connected' ? (O.lobby.length > 1 ? '🟢 Ready when you are!' : '🟡 Waiting for friends to join…') : O.state === 'loading' ? '⏳ Starting…' : O.state === 'error' ? '🔴 Problem' : '🟠 ' + O.msg)
+      : (O.connected ? '🟢 Connected — waiting for the host to start' : O.state === 'error' ? '🔴 Problem' : '⏳ ' + (O.msg || 'Connecting…'));
+    if (O.started) st = '🟢 Game in progress';
+    $('onStatus').textContent = st;
+    var canN = 'Notification' in window && window.isSecureContext !== false;
+    var perm = canN ? Notification.permission : 'unsupported';
+    $('btnNotify').hidden = !(canN && perm === 'default');
+    $('notifyNote').hidden = perm !== 'granted' && perm !== 'denied';
+    $('notifyNote').textContent = perm === 'granted' ? '🔔 You’ll get a notification when it’s your turn and the app is in the background.' : perm === 'denied' ? 'Notifications are blocked in this browser’s settings — you’ll still get the chime and banner.' : '';
+    $('onCodeShow').textContent = O.code;
+    var link = shareLink();
+    $('onLinkRow').style.display = link && host ? '' : 'none';
+    $('onLink').value = link;
+    $('onShare').style.display = navigator.share ? '' : 'none';
+    var lob = O.lobby || [];
+    $('lobbyList').innerHTML = lob.map(function (p, i) {
+      var icon = p.kind === 'ai' ? (p.level === 'easy' ? '🐣🤖' : '😎🤖') : AV[i % 4];
+      var you = (host && i === 0) || (!host && i === O.you) ? ' <b>(you)</b>' : '';
+      var rm = host && p.kind === 'ai' && !O.started ? '<button class="btn small" data-rm="' + i + '">✕</button>' : '';
+      return '<li>' + icon + ' ' + esc(p.name) + you + rm + '</li>';
+    }).join('');
+    $('lobbyHostBtns').hidden = !host || O.started || lob.length >= 4;
+    $('onStart').hidden = !host;
+    $('onStart').disabled = lob.length < 2 && !O.started;
+    $('onStart').textContent = O.started ? '▶ Back to the game' : '▶ Start game';
+    $('onNote').textContent = host && !O.started ? (link ? 'Send the link (or just the code) to the other players. When everyone shows up here, tap Start.' : 'Tell your friends the code.') + ' You can also add computer players.'
+      : (!host && O.started ? '' : (!host ? 'The host will start the game soon.' : ''));
+  }
+  $('onCreate').onclick = function () { $('onError').hidden = true; O.state = 'idle'; hostCreate(); };
+  $('onJoin').onclick = function () { $('onError').hidden = true; O.state = 'idle'; joinGame($('onCode').value); };
+  $('onCode').addEventListener('keydown', function (e) { if (e.key === 'Enter') $('onJoin').click(); });
+  $('onLeave').onclick = function () { if (window.confirm('Leave the online game?')) leaveOnline(); };
+  $('onStart').onclick = function () { if (O.started) { S.screen = 'game'; render(); } else hostStart(); };
+  $('lobbyList').onclick = function (e) { var b = e.target.closest('button[data-rm]'); if (!b) return; O.lobby.splice(+b.dataset.rm, 1); broadcastLobby(); save(); render(); };
+  function addAi(level) {
+    if (O.lobby.length >= 4) return;
+    var n = O.lobby.filter(function (p) { return p.kind === 'ai'; }).length;
+    O.lobby.push({ name: AI_NAMES[n % 3], kind: 'ai', level: level }); broadcastLobby(); save(); render();
+  }
+  $('addAiEasy').onclick = function () { addAi('easy'); };
+  $('addAiNormal').onclick = function () { addAi('normal'); };
+  $('onCopy').onclick = function () {
+    var v = $('onLink').value;
+    var done = function () { $('onCopy').textContent = 'Copied!'; setTimeout(function () { $('onCopy').textContent = 'Copy'; }, 1500); };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(v).then(done, function () { $('onLink').select(); document.execCommand('copy'); done(); });
+    else { $('onLink').select(); document.execCommand('copy'); done(); }
+  };
+  $('onShare').onclick = function () { if (navigator.share) navigator.share({ title: 'Family Rummy', text: 'Come play Family Rummy with me! Code ' + O.code, url: shareLink() }).catch(function () { }); };
+
+  // ---------- timer ----------
+  setInterval(function () {
+    if (!S.deadline || !isMyTurn()) return;
+    var el = $('timerTxt');
+    if (Date.now() >= S.deadline) { timeUp(); return; }
+    if (el) { var left = Math.ceil((S.deadline - Date.now()) / 1000); el.textContent = '⏱ ' + left + 's'; el.classList.toggle('low', left <= 10); }
+  }, 500);
+
+  // ---------- save / restore ----------
+  function save() {
+    try {
+      localStorage.setItem(SAVE_KEY, JSON.stringify({
+        v: 1, set: S.set, setupMode: S.setupMode, screen: S.screen, G: S.G, W: S.W, rackPos: S.rackPos, revealed: S.revealed,
+        lastHuman: S.lastHuman, seenMove: S.seenMove, overSeen: S.overSeen, fresh: S.fresh, cid: O.cid, coverNote: S.coverNote, pinged: S.pinged, pingCode: S.pingCode,
+        online: O.role ? { role: O.role, code: O.code, lobby: O.role === 'host' ? O.lobby : null, started: O.started } : null
+      }));
+    } catch (e) { /* storage unavailable */ }
+  }
+  function load() {
+    var d = null;
+    try { d = JSON.parse(localStorage.getItem(SAVE_KEY) || 'null'); } catch (e) { d = null; }
+    if (!d || d.v !== 1) return null;
+    if (d.set) Object.keys(S.set).forEach(function (k) { if (d.set[k] !== undefined) S.set[k] = d.set[k]; });
+    if (['computer', 'pass', 'online'].indexOf(d.setupMode) >= 0) S.setupMode = d.setupMode;
+    if (d.G && d.G.players && d.G.pool && d.G.table) S.G = d.G;
+    S.W = d.W || null; S.rackPos = d.rackPos || {}; S.revealed = d.revealed === undefined ? -1 : d.revealed;
+    S.lastHuman = d.lastHuman === undefined ? null : d.lastHuman; S.seenMove = d.seenMove || null; S.overSeen = d.overSeen || null;
+    S.fresh = d.fresh || {}; S.coverNote = d.coverNote || ''; S.pinged = d.pinged || null; S.pingCode = d.pingCode || ''; O.cid = d.cid || '';
+    S.screen = d.screen === 'game' && S.G && S.G.mode !== 'online' ? 'game' : 'setup';
+    return d;
+  }
+
+  // ---------- PWA ----------
+  if (window.FR_PWA && 'serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
+    window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () { }); });
+  }
+
+  // ---------- boot ----------
+  var saved = load();
+  function handleJoinHash(fromBoot) {
+    var m = /[#&]join=([A-Za-z0-9]{4,6})/.exec(location.hash);
+    if (!m) return false;
+    var code = m[1].toUpperCase();
+    if (O.role === 'guest' && O.code === code) return true;
+    if (!fromBoot && O.role) { if (!window.confirm('Leave this online game and join ' + code + '?')) return true; leaveOnline(); history.replaceState(null, '', location.pathname + location.search + '#join=' + code); }
+    S.setupMode = 'online'; S.screen = 'setup';
+    var sv = fromBoot ? saved : null;
+    if (sv && sv.online && sv.online.role === 'host' && sv.online.code === code) {
+      O.lobby = sv.online.lobby || [{ name: myName(), kind: 'human' }]; O.started = !!(sv.online.started && S.G && S.G.mode === 'online');
+      if (O.started) S.screen = 'game';
+      hostCreate(code, true);
+    } else if ((sv && sv.online && sv.online.role === 'guest' && sv.online.code === code) || (S.set.name || '').trim()) joinGame(code);
+    else { $('onCode').value = code; render(); setTimeout(function () { toast('Type your name, then tap Join!'); $('myName').focus(); }, 300); }
+    return true;
+  }
+  window.addEventListener('hashchange', function () { handleJoinHash(false); });
+  if (handleJoinHash(true)) { /* joining or resuming via link */
+  } else if (saved && saved.online && saved.online.code) {
+    S.setupMode = 'online';
+    if (saved.online.role === 'host') {
+      O.lobby = saved.online.lobby || [{ name: myName(), kind: 'human' }];
+      O.started = !!(saved.online.started && S.G && S.G.mode === 'online');
+      S.screen = O.started ? 'game' : 'setup';
+      hostCreate(saved.online.code, true);
+    } else joinGame(saved.online.code);
+  } else {
+    if (S.G && S.G.mode === 'online') S.G = null;
+    render(); maybeAI();
+  }
+  window.__FR = { S: S, O: O, E: E, view: view, render: render, ping: PING, setSound: setSound, get soundOn() { return soundOn; } };   // for tests / debugging
+})();
+
+</script>
+</body>
+</html>
